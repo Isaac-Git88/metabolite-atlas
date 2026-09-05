@@ -2,3 +2,4 @@
 .DS_Store
 *.db-journal
 __pycache__/
+_to_delete/
