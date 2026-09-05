@@ -1,0 +1,789 @@
+<meta charset="utf-8">
+<title>Metabolite Atlas &mdash; Reference Ranges</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f5f6f8; --surface: #ffffff; --surface-2: #eef0f3;
+    --ink: #14181f; --ink-2: #5b6472; --ink-3: #838d9c;
+    --border: #d8dbe1; --accent: #2e4ae0;
+    --accent-soft: rgba(46, 74, 224, 0.08);
+    --row-hover: rgba(46, 74, 224, 0.05);
+    --shadow: 0 1px 2px rgba(20,24,31,.04), 0 8px 24px rgba(20,24,31,.05);
+    /* chart tokens -- validated against the light surface */
+    --series-1: #2a78d6;
+    --series-1-wash: rgba(42,120,214,.12);
+    --mark-context: #b4bac4;
+    --grid: #e6e8ec;
+    --axis: #c3c2b7;
+    --warn-ink: #8a6100;
+  }
+  :root[data-theme="dark"] {
+    --bg: #10141b; --surface: #171c26; --surface-2: #1d2330;
+    --ink: #e8eaef; --ink-2: #9aa3b2; --ink-3: #6d7688;
+    --border: #2b3140; --accent: #8296ff;
+    --accent-soft: rgba(130,150,255,.12); --row-hover: rgba(130,150,255,.08);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.35);
+    --series-1: #3987e5; --series-1-wash: rgba(57,135,229,.18);
+    --mark-context: #5a626f; --grid: #262d3a; --axis: #383f4d;
+    --warn-ink: #fab219;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10141b; --surface: #171c26; --surface-2: #1d2330;
+      --ink: #e8eaef; --ink-2: #9aa3b2; --ink-3: #6d7688;
+      --border: #2b3140; --accent: #8296ff;
+      --accent-soft: rgba(130,150,255,.12); --row-hover: rgba(130,150,255,.08);
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.35);
+      --series-1: #3987e5; --series-1-wash: rgba(57,135,229,.18);
+      --mark-context: #5a626f; --grid: #262d3a; --axis: #383f4d;
+      --warn-ink: #fab219;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Public Sans", -apple-system, "Segoe UI", sans-serif;
+    font-size: 15.5px; line-height: 1.5; }
+  main { max-width: 1180px; margin: 0 auto; padding: 48px 24px 96px; }
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; font-weight: 600; margin: 0; text-wrap: balance; }
+  h1 { font-size: clamp(28px, 3.6vw, 38px); letter-spacing: -.01em; }
+  code, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+  .eyebrow { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+  .lede { margin: 14px 0 0; max-width: 70ch; color: var(--ink-2); font-size: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .card > h2 { font-family: "Public Sans", sans-serif; font-size: 14.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 4px; }
+  .card > .sub { font-size: 12.5px; color: var(--ink-3); margin: 0 0 14px; }
+
+  .kpis { margin-top: 34px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 820px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .stat .n { font-size: 27px; font-weight: 600; letter-spacing: -.01em; }
+  .stat .label { margin-top: 2px; font-size: 12.5px; color: var(--ink-2); }
+
+  .band { margin-top: 12px; display: grid; grid-template-columns: 1.25fr 1fr; gap: 12px; align-items: start; }
+  @media (max-width: 940px) { .band { grid-template-columns: 1fr; } }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 0 0 12px; font-size: 12.5px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .swatch { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+
+  .bar-row { display: grid; grid-template-columns: 158px 1fr 100px; align-items: center; gap: 10px; padding: 3px 0; }
+  .bar-row .bl { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { height: 13px; display: flex; }
+  .seg { height: 100%; }
+  .seg.c { background: var(--series-1); border-radius: 3px 0 0 3px; }
+  .seg.x { background: var(--mark-context); border-radius: 0 3px 3px 0; }
+  .seg.only { border-radius: 3px; }
+  .gap { width: 2px; background: var(--surface); flex: none; }
+  .bar-row .bn { font-size: 12px; color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+
+  table.mini { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.mini th { text-align: left; color: var(--ink-3); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: .04em; padding: 0 8px 6px 0; }
+  table.mini td { padding: 5px 8px 5px 0; border-top: 1px solid var(--border); color: var(--ink-2); }
+  table.mini td.n { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+
+  .note { margin-top: 12px; border-left: 3px solid var(--series-1); background: var(--series-1-wash);
+    padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 13.5px; color: var(--ink-2); }
+  .note strong { color: var(--ink); }
+
+  .filters { margin-top: 30px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .search-wrap { position: relative; flex: 1 1 240px; }
+  .search-wrap input { width: 100%; padding: 9px 12px 9px 34px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--ink); font-size: 14px; font-family: inherit; }
+  .search-wrap input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); opacity: .5; }
+  select { padding: 9px 30px 9px 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--ink); font-size: 13.5px; font-family: inherit; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235b6472' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; }
+  select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .btn { padding: 9px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: transparent; color: var(--ink-2); font-size: 13.5px; font-family: inherit; cursor: pointer; }
+  .btn:hover { border-color: var(--ink-3); color: var(--ink); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .tabs { margin-top: 26px; display: flex; gap: 4px; border-bottom: 1px solid var(--border); }
+  .tab { background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    padding: 10px 14px; font-family: inherit; font-size: 14px; color: var(--ink-2); cursor: pointer; }
+  .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  .results-head { margin-top: 18px; display: flex; justify-content: space-between; align-items: baseline;
+    color: var(--ink-2); font-size: 13.5px; gap: 12px; flex-wrap: wrap; }
+  .results-head strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .table-card { margin-top: 10px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+  .table-scroll { overflow-x: auto; }
+  table.results { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 800px; }
+  table.results th { text-align: left; padding: 10px 14px; background: var(--surface-2); color: var(--ink-2);
+    font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em;
+    border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.results th.sortable { cursor: pointer; user-select: none; }
+  table.results th.sortable:hover { color: var(--ink); }
+  table.results th .arrow { opacity: .45; font-size: 9px; }
+  table.results td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.results td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.results tbody tr.data-row { cursor: pointer; }
+  table.results tbody tr.data-row:hover { background: var(--row-hover); }
+  table.results tbody tr:last-child td { border-bottom: none; }
+  .mname { font-weight: 600; }
+  .hid { color: var(--ink-3); font-size: 11.5px; display: block; margin-top: 2px; }
+  .chip { display: inline-block; font-size: 11.5px; padding: 2px 8px; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+  .chip.warn { background: rgba(250,178,25,.16); color: var(--warn-ink); }
+  .muted { color: var(--ink-3); }
+  .empty-state { padding: 48px 20px; text-align: center; color: var(--ink-3); }
+  .pagination { display: flex; align-items: center; justify-content: center; gap: 14px;
+    padding: 14px; border-top: 1px solid var(--border); }
+  .pagination button { background: var(--surface-2); border: 1px solid var(--border); color: var(--ink);
+    border-radius: 7px; padding: 7px 13px; font-size: 13px; font-family: inherit; cursor: pointer; }
+  .pagination button:disabled { opacity: .4; cursor: default; }
+  .pg-info { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+  .detail { margin-top: 14px; }
+  .detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .detail-head h2 { font-size: 21px; }
+  .detail-head .sub { font-size: 13px; color: var(--ink-2); margin-top: 3px; }
+  .chart-wrap { margin-top: 14px; overflow-x: auto; }
+  svg.range-chart { display: block; font-family: "Public Sans", sans-serif; }
+  svg.range-chart .grid-line { stroke: var(--grid); stroke-width: 1; }
+  svg.range-chart .axis-line { stroke: var(--axis); stroke-width: 1; }
+  svg.range-chart .tick-label { fill: var(--ink-3); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+  svg.range-chart .axis-title { fill: var(--ink-3); font-size: 11px; }
+  svg.range-chart .row-label { fill: var(--ink); font-size: 12.5px; }
+  svg.range-chart .row-sub { fill: var(--ink-3); font-size: 10.5px; }
+  svg.range-chart .value-label { fill: var(--ink-2); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  svg.range-chart .whisker, svg.range-chart .cap { stroke: var(--mark-context); stroke-width: 1; }
+  svg.range-chart .iqr { fill: var(--series-1); }
+  svg.range-chart .median-dot { fill: var(--series-1); stroke: var(--surface); stroke-width: 2; }
+  svg.range-chart .hit { fill: transparent; cursor: pointer; }
+  svg.range-chart .row-hl { fill: var(--row-hover); opacity: 0; pointer-events: none; }
+  svg.range-chart .hit:hover ~ .row-hl, svg.range-chart .hit:focus ~ .row-hl { opacity: 1; }
+
+  .tooltip { position: fixed; z-index: 50; pointer-events: none; opacity: 0; transition: opacity .1s;
+    background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
+    border-radius: 8px; padding: 9px 11px; font-size: 12.5px; color: var(--ink); max-width: 290px; }
+  .tooltip .tt-title { font-weight: 600; margin-bottom: 4px; }
+  .tooltip .tt-row { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+  .src-scroll { max-height: 440px; overflow-y: auto; margin-top: 4px;
+    border-top: 1px solid var(--border); }
+  .src-list { margin: 0; padding: 0 4px 0 0; list-style: none; font-size: 13px; }
+  .src-list li:first-child { border-top: none; }
+  .src-list li { padding: 9px 0; border-top: 1px solid var(--border); color: var(--ink-2); display: flex; gap: 14px; }
+  .src-list .v { font-family: "IBM Plex Mono", monospace; color: var(--ink); white-space: nowrap; min-width: 148px; }
+  .src-list a { color: var(--accent); }
+
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--ink-3); font-size: 12.5px; }
+  footer code { color: var(--ink-2); }
+</style>
+
+<main>
+  <p class="eyebrow">metabolite-atlas &middot; v2</p>
+  <h1>Normal metabolite concentration ranges</h1>
+  <p class="lede">
+    Reference ranges mined from the Human Metabolome Database. Concentrations reported
+    by HMDB as free text are parsed into numbers, then summarised per metabolite and
+    biospecimen so that normal ranges can be compared directly.
+  </p>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="band">
+    <div class="card">
+      <h2>Measurements by biospecimen</h2>
+      <p class="sub">Which records sit on a shared concentration axis, and which are retained but not compared.</p>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--series-1)"></i> Comparable (&micro;mol/L)</span>
+        <span><i class="swatch" style="background:var(--mark-context)"></i> Retained, not compared</span>
+      </div>
+      <div id="bio-chart"></div>
+    </div>
+
+    <div class="card">
+      <h2>Excluded from comparison</h2>
+      <p class="sub">Kept in the database; filtered out of concentration plots.</p>
+      <table class="mini">
+        <thead><tr><th>Unit</th><th>Reason</th><th style="text-align:right">Rows</th></tr></thead>
+        <tbody id="excluded-body"></tbody>
+      </table>
+      <div class="note">
+        <strong>Why:</strong> creatinine-normalised and fecal-mass measurements answer a
+        different question from volumetric ones, so placing them on the same axis would
+        misstate the comparison. They remain in the database and stay searchable under
+        <em>All measurements</em>.
+      </div>
+    </div>
+  </div>
+
+  <div class="filters" role="group" aria-label="Filters applied to every view below">
+    <div class="search-wrap">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"></circle><line x1="10.3" y1="10.3" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></line></svg>
+      <input type="text" id="q" placeholder="Search metabolite name or HMDB ID&hellip;" autocomplete="off" aria-label="Search metabolites">
+    </div>
+    <select id="f-bio" aria-label="Biospecimen"><option value="">All biospecimens</option></select>
+    <select id="f-age" aria-label="Age group"><option value="">All ages</option></select>
+    <select id="f-sex" aria-label="Sex"><option value="">All sexes</option></select>
+    <select id="f-minn" aria-label="Minimum measurements per range">
+      <option value="1">Any number of measurements</option>
+      <option value="3" selected>3+ measurements</option>
+      <option value="5">5+ measurements</option>
+      <option value="10">10+ measurements</option>
+    </select>
+    <button class="btn" id="clear">Clear</button>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tab-ranges" role="tab" aria-selected="true" aria-controls="panel-ranges">Reference ranges</button>
+    <button class="tab" id="tab-meas" role="tab" aria-selected="false" aria-controls="panel-meas">All measurements</button>
+  </div>
+
+  <section id="panel-ranges" role="tabpanel" aria-labelledby="tab-ranges">
+    <div class="results-head">
+      <span>Showing <strong id="r-range">&ndash;</strong> of <strong id="r-total">&ndash;</strong> reference ranges</span>
+      <span class="muted">Comparable measurements only &middot; click a row to compare across biospecimens</span>
+    </div>
+    <div class="table-card">
+      <div class="table-scroll">
+        <table class="results">
+          <thead><tr>
+            <th class="sortable" data-sort="name">Metabolite <span class="arrow"></span></th>
+            <th class="sortable" data-sort="bio">Biospecimen <span class="arrow"></span></th>
+            <th class="sortable" data-sort="n" style="text-align:right">n <span class="arrow"></span></th>
+            <th class="sortable" data-sort="median" style="text-align:right">Median <span class="arrow"></span></th>
+            <th style="text-align:right">IQR</th>
+            <th style="text-align:right">Observed range</th>
+            <th>Unit</th>
+          </tr></thead>
+          <tbody id="ranges-body"></tbody>
+        </table>
+        <div class="empty-state" id="ranges-empty" style="display:none">No reference ranges match these filters.</div>
+      </div>
+      <div class="pagination">
+        <button id="r-prev">&larr; Prev</button>
+        <span class="pg-info" id="r-pg"></span>
+        <button id="r-next">Next &rarr;</button>
+      </div>
+    </div>
+
+    <div class="card detail" id="detail" style="display:none">
+      <div class="detail-head">
+        <div>
+          <h2 id="d-name"></h2>
+          <div class="sub" id="d-sub"></div>
+        </div>
+        <button class="btn" id="d-close">Close</button>
+      </div>
+      <div class="chart-wrap"><div id="d-chart"></div></div>
+      <div id="d-sources"></div>
+    </div>
+  </section>
+
+  <section id="panel-meas" role="tabpanel" aria-labelledby="tab-meas" hidden>
+    <div class="results-head">
+      <span>Showing <strong id="m-range">&ndash;</strong> of <strong id="m-total">&ndash;</strong> measurements</span>
+      <span class="muted">Every record, including those excluded from comparison</span>
+    </div>
+    <div class="table-card">
+      <div class="table-scroll">
+        <table class="results">
+          <thead><tr>
+            <th>Metabolite</th><th>Biospecimen</th>
+            <th style="text-align:right">Value as reported</th>
+            <th style="text-align:right">Parsed</th>
+            <th>Unit</th><th>Age</th><th>Sex</th><th>Source</th>
+          </tr></thead>
+          <tbody id="meas-body"></tbody>
+        </table>
+        <div class="empty-state" id="meas-empty" style="display:none">No measurements match these filters.</div>
+      </div>
+      <div class="pagination">
+        <button id="m-prev">&larr; Prev</button>
+        <span class="pg-info" id="m-pg"></span>
+        <button id="m-next">Next &rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Built by <code>build_explorer_v2.py</code> from <code>metabolite_atlas_v2.db</code> &middot;
+    <span id="foot-count"></span> measurements loaded in-browser, nothing sent over the network.<br>
+    Summary statistics use one representative value per measurement (the reported mean, or the
+    midpoint of a reported range), unweighted by study sample size, which HMDB does not record.
+    Censored values (&ldquo;&lt;0.5&rdquo;) are listed but excluded from the statistics.
+  </footer>
+</main>
+
+<div class="tooltip" id="tooltip" role="status" aria-live="polite"></div>
+
+<script id="atlas-data" type="application/json">__ATLAS_DATA_JSON__</script>
+<script>
+(function () {
+  "use strict";
+
+  var DATA = JSON.parse(document.getElementById("atlas-data").textContent);
+  var METS = DATA.metabolites, BIOS = DATA.biospecimens, UNITS = DATA.units,
+      REFS = DATA.references, MEAS = DATA.measurements, EXCL = DATA.excluded;
+
+  // measurement tuple indexes
+  var HMDB = 0, BIO = 1, UNIT = 2, RAW = 3, REP = 4, VMIN = 5, VMAX = 6,
+      VSD = 7, OK = 8, REVIEW = 9, NOTE = 10, AGE = 11, SEX = 12, COND = 13, REF = 14;
+
+  var PAGE_SIZE = 25;
+  var state = { q: "", bio: "", age: "", sex: "", minN: 3,
+                tab: "ranges", sortKey: "n", sortDir: -1,
+                rPage: 0, mPage: 0, selected: null };
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function isComparable(m) { return UNITS[m[UNIT]][2] === 1; }
+  function plottable(m) { return isComparable(m) && m[OK] === 1 && m[REP] != null; }
+
+  // Concentrations span roughly eight orders of magnitude, so formatting has to
+  // stay meaningful for both 0.0004 and 9,000.
+  function fmt(v) {
+    if (v == null || !isFinite(v)) return "–";
+    var a = Math.abs(v);
+    if (a === 0) return "0";
+    if (a < 0.001) return v.toPrecision(2);
+    if (a < 1) return String(+v.toFixed(4));
+    if (a < 100) return String(+v.toFixed(2));
+    return Math.round(v).toLocaleString();
+  }
+  function quantile(sorted, p) {          // linear interpolation, matches pandas
+    if (!sorted.length) return null;
+    if (sorted.length === 1) return sorted[0];
+    var h = (sorted.length - 1) * p, lo = Math.floor(h), hi = Math.ceil(h);
+    return sorted[lo] + (h - lo) * (sorted[hi] - sorted[lo]);
+  }
+
+  function matchesText(id) {
+    if (!state.q) return true;
+    var q = state.q.toLowerCase();
+    return METS[id].toLowerCase().indexOf(q) !== -1 || id.toLowerCase().indexOf(q) !== -1;
+  }
+  function passes(m, opts) {
+    opts = opts || {};
+    if (!matchesText(m[HMDB])) return false;
+    if (!opts.ignoreBio && state.bio && String(m[BIO]) !== state.bio) return false;
+    if (state.age && m[AGE] !== state.age) return false;
+    if (state.sex && m[SEX] !== state.sex) return false;
+    return true;
+  }
+
+  // Reference ranges are recomputed from the filtered measurements so that every
+  // filter in the bar above applies consistently to both views. The identical
+  // statistics are materialised in the reference_ranges table for SQL users.
+  function computeRanges(opts) {
+    opts = opts || {};
+    var groups = {};
+    for (var i = 0; i < MEAS.length; i++) {
+      var m = MEAS[i];
+      if (!plottable(m) || !passes(m, opts)) continue;
+      if (opts.onlyMetabolite && m[HMDB] !== opts.onlyMetabolite) continue;
+      var key = m[HMDB] + "|" + m[BIO];
+      var g = groups[key] || (groups[key] = { hmdb: m[HMDB], bio: m[BIO],
+        unit: UNITS[m[UNIT]][0], vals: [], lows: [], highs: [], refs: {}, review: 0 });
+      g.vals.push(m[REP]);
+      g.lows.push(m[VMIN] != null ? m[VMIN] : m[REP]);
+      g.highs.push(m[VMAX] != null ? m[VMAX] : m[REP]);
+      if (m[REF] != null) g.refs[m[REF]] = 1;
+      if (m[REVIEW] === 1) g.review++;
+    }
+    var out = [];
+    for (var k in groups) {
+      var g = groups[k];
+      var s = g.vals.slice().sort(function (a, b) { return a - b; });
+      var sum = 0;
+      for (var j = 0; j < s.length; j++) sum += s[j];
+      out.push({ hmdb: g.hmdb, name: METS[g.hmdb], bio: BIOS[g.bio], unit: g.unit,
+        n: s.length, nRefs: Object.keys(g.refs).length,
+        mean: sum / s.length, median: quantile(s, .5),
+        p25: quantile(s, .25), p75: quantile(s, .75),
+        low: Math.min.apply(null, g.lows), high: Math.max.apply(null, g.highs),
+        review: g.review });
+    }
+    return out;
+  }
+
+  function renderKpis() {
+    var comparable = 0;
+    for (var i = 0; i < MEAS.length; i++) if (plottable(MEAS[i])) comparable++;
+    var mets = {};
+    computeRanges({}).forEach(function (r) { mets[r.hmdb] = 1; });
+    var tiles = [
+      [MEAS.length.toLocaleString(), "measurements in the atlas"],
+      [comparable.toLocaleString(), "comparable (µmol/L)"],
+      [Object.keys(mets).length.toLocaleString(), "metabolites with a range"],
+      [Object.keys(REFS).length.toLocaleString(), "source citations"]
+    ];
+    document.getElementById("kpis").innerHTML = tiles.map(function (t) {
+      return '<div class="stat"><div class="n">' + t[0] + '</div><div class="label">' + t[1] + "</div></div>";
+    }).join("");
+    document.getElementById("foot-count").textContent = MEAS.length.toLocaleString();
+  }
+
+  function renderBioChart() {
+    var tot = {}, comp = {};
+    for (var i = 0; i < MEAS.length; i++) {
+      var m = MEAS[i];
+      tot[m[BIO]] = (tot[m[BIO]] || 0) + 1;
+      if (plottable(m)) comp[m[BIO]] = (comp[m[BIO]] || 0) + 1;
+    }
+    var rows = Object.keys(tot).map(function (id) {
+      return { name: BIOS[id], total: tot[id], comp: comp[id] || 0 };
+    }).sort(function (a, b) { return b.total - a.total; }).slice(0, 9);
+    var max = rows[0].total;
+
+    document.getElementById("bio-chart").innerHTML = rows.map(function (r) {
+      var cw = (r.comp / max) * 100, xw = ((r.total - r.comp) / max) * 100, segs = "";
+      if (r.comp > 0) segs += '<div class="seg c' + (xw === 0 ? " only" : "") + '" style="width:' + cw + '%"></div>';
+      if (r.comp > 0 && xw > 0) segs += '<div class="gap"></div>';
+      if (xw > 0) segs += '<div class="seg x' + (r.comp === 0 ? " only" : "") + '" style="width:' + xw + '%"></div>';
+      return '<div class="bar-row" title="' + esc(r.name) + ": " + r.comp.toLocaleString() +
+        " comparable of " + r.total.toLocaleString() + '"><span class="bl">' + esc(r.name) +
+        '</span><div class="bar-track">' + segs + '</div><span class="bn">' +
+        r.comp.toLocaleString() + " / " + r.total.toLocaleString() + "</span></div>";
+    }).join("");
+  }
+
+  function renderExcluded() {
+    document.getElementById("excluded-body").innerHTML = EXCL.map(function (e) {
+      return "<tr><td>" + esc(e[0]) + "</td><td>" + esc(e[2]) +
+             '</td><td class="n">' + e[3].toLocaleString() + "</td></tr>";
+    }).join("");
+  }
+
+  // ---- the range chart -----------------------------------------------------
+  // One row per biospecimen on a shared log axis (a linear axis would collapse
+  // everything below ~1 umol/L onto the left edge).
+  //   thin line = observed range | thick bar = interquartile range | dot = median
+  // Single series, so no legend box: the caption names what is plotted.
+  function renderRangeChart(rows, container) {
+    if (!rows.length) { container.innerHTML = ""; return; }
+    var LABEL_W = 176, VALUE_W = 92, PAD_R = 12, ROW_H = 40, AXIS_H = 42, TOP = 8;
+    var avail = container.parentNode.clientWidth || 640;
+    var width = Math.max(640, avail);
+    var plotW = width - LABEL_W - VALUE_W - PAD_R;
+    var height = TOP + rows.length * ROW_H + AXIS_H;
+
+    var lo = Infinity, hi = -Infinity;
+    rows.forEach(function (r) {
+      [r.low, r.high, r.median, r.p25, r.p75].forEach(function (v) {
+        if (v != null && v > 0) { if (v < lo) lo = v; if (v > hi) hi = v; }
+      });
+    });
+    if (!isFinite(lo)) { container.innerHTML = '<p class="muted">No plottable values.</p>'; return; }
+    if (lo === hi) { lo = lo / 3; hi = hi * 3; }
+    var d0 = Math.log10(lo), d1 = Math.log10(hi), span = (d1 - d0) || 1;
+    d0 -= span * .08; d1 += span * .08;
+
+    function x(v) {
+      if (v == null || v <= 0) return null;
+      return LABEL_W + ((Math.log10(v) - d0) / (d1 - d0)) * plotW;
+    }
+
+    var ticks = [], e0 = Math.ceil(d0), e1 = Math.floor(d1);
+    var stepE = Math.max(1, Math.ceil((e1 - e0 + 1) / 7));
+    for (var e = e0; e <= e1; e += stepE) ticks.push(Math.pow(10, e));
+    if (!ticks.length) ticks.push(Math.pow(10, Math.round((d0 + d1) / 2)));
+
+    var baseY = TOP + rows.length * ROW_H;
+    var svg = ['<svg class="range-chart" width="' + width + '" height="' + height +
+      '" viewBox="0 0 ' + width + " " + height +
+      '" role="img" aria-label="Normal concentration range by biospecimen, log scale">'];
+
+    ticks.forEach(function (t) {
+      var tx = x(t);
+      svg.push('<line class="grid-line" x1="' + tx + '" y1="' + TOP + '" x2="' + tx + '" y2="' + baseY + '"/>');
+      svg.push('<text class="tick-label" x="' + tx + '" y="' + (baseY + 18) + '" text-anchor="middle">' + fmt(t) + "</text>");
+    });
+    svg.push('<line class="axis-line" x1="' + LABEL_W + '" y1="' + baseY + '" x2="' + (LABEL_W + plotW) + '" y2="' + baseY + '"/>');
+    svg.push('<text class="axis-title" x="' + (LABEL_W + plotW / 2) + '" y="' + (baseY + 35) +
+             '" text-anchor="middle">concentration, µmol/L (log scale)</text>');
+
+    rows.forEach(function (r, i) {
+      var cy = TOP + i * ROW_H + ROW_H / 2;
+      var xl = x(r.low), xh = x(r.high), x25 = x(r.p25), x75 = x(r.p75), xm = x(r.median);
+
+      svg.push('<rect class="hit" x="0" y="' + (cy - ROW_H / 2) + '" width="' + width +
+               '" height="' + ROW_H + '" tabindex="0" data-i="' + i + '"><title>' + esc(r.bio) + "</title></rect>");
+      svg.push('<rect class="row-hl" x="0" y="' + (cy - ROW_H / 2) + '" width="' + width + '" height="' + ROW_H + '"/>');
+
+      svg.push('<text class="row-label" x="0" y="' + (cy - 1) + '">' + esc(r.bio) + "</text>");
+      svg.push('<text class="row-sub" x="0" y="' + (cy + 13) + '">n=' + r.n + " · " +
+               r.nRefs + " ref" + (r.nRefs === 1 ? "" : "s") + "</text>");
+
+      if (xl != null && xh != null && xh - xl > 0.5) {
+        svg.push('<line class="whisker" x1="' + xl + '" y1="' + cy + '" x2="' + xh + '" y2="' + cy + '"/>');
+        svg.push('<line class="cap" x1="' + xl + '" y1="' + (cy - 4) + '" x2="' + xl + '" y2="' + (cy + 4) + '"/>');
+        svg.push('<line class="cap" x1="' + xh + '" y1="' + (cy - 4) + '" x2="' + xh + '" y2="' + (cy + 4) + '"/>');
+      }
+      if (x25 != null && x75 != null && x75 - x25 > 1) {
+        svg.push('<rect class="iqr" x="' + x25 + '" y="' + (cy - 4) + '" width="' + (x75 - x25) + '" height="8" rx="4"/>');
+      }
+      if (xm != null) svg.push('<circle class="median-dot" cx="' + xm + '" cy="' + cy + '" r="4.5"/>');
+
+      svg.push('<text class="value-label" x="' + (width - PAD_R) + '" y="' + (cy + 4) +
+               '" text-anchor="end">' + fmt(r.median) + "</text>");
+    });
+    svg.push("</svg>");
+    container.innerHTML = svg.join("");
+    attachChartTooltip(container, rows);
+  }
+
+  var tooltipEl = document.getElementById("tooltip");
+  function showTip(html, cx, cy) {
+    tooltipEl.innerHTML = html;
+    tooltipEl.style.opacity = "1";
+    var r = tooltipEl.getBoundingClientRect();
+    tooltipEl.style.left = Math.max(8, Math.min(cx + 14, window.innerWidth - r.width - 10)) + "px";
+    tooltipEl.style.top = Math.max(8, Math.min(cy + 14, window.innerHeight - r.height - 10)) + "px";
+  }
+  function hideTip() { tooltipEl.style.opacity = "0"; }
+
+  function attachChartTooltip(container, rows) {
+    Array.prototype.forEach.call(container.querySelectorAll(".hit"), function (hit) {
+      function html(r) {
+        return '<div class="tt-title">' + esc(r.bio) + "</div>" +
+          '<div class="tt-row">Median ' + fmt(r.median) + " " + esc(r.unit) + "</div>" +
+          '<div class="tt-row">IQR ' + fmt(r.p25) + " – " + fmt(r.p75) + "</div>" +
+          '<div class="tt-row">Range ' + fmt(r.low) + " – " + fmt(r.high) + "</div>" +
+          '<div class="tt-row">' + r.n + " measurements · " + r.nRefs + " sources</div>" +
+          (r.review ? '<div class="tt-row">' + r.review + " flagged for review</div>" : "");
+      }
+      var r = rows[+hit.getAttribute("data-i")];
+      hit.addEventListener("mousemove", function (ev) { showTip(html(r), ev.clientX, ev.clientY); });
+      hit.addEventListener("mouseleave", hideTip);
+      hit.addEventListener("focus", function () {
+        var b = hit.getBoundingClientRect();
+        showTip(html(r), b.left + 180, b.top);
+      });
+      hit.addEventListener("blur", hideTip);
+    });
+  }
+
+  function renderRanges() {
+    var rows = computeRanges({}).filter(function (r) { return r.n >= state.minN; });
+    var key = state.sortKey, dir = state.sortDir;
+    rows.sort(function (a, b) {
+      var av, bv;
+      if (key === "name") { av = a.name.toLowerCase(); bv = b.name.toLowerCase(); }
+      else if (key === "bio") { av = a.bio; bv = b.bio; }
+      else { av = a[key]; bv = b[key]; }
+      if (av < bv) return -dir;
+      if (av > bv) return dir;
+      return a.name.localeCompare(b.name);
+    });
+
+    var total = rows.length, pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (state.rPage >= pages) state.rPage = pages - 1;
+    if (state.rPage < 0) state.rPage = 0;
+    var start = state.rPage * PAGE_SIZE, slice = rows.slice(start, start + PAGE_SIZE);
+
+    document.getElementById("r-total").textContent = total.toLocaleString();
+    document.getElementById("r-range").textContent = total
+      ? (start + 1).toLocaleString() + "–" + Math.min(start + PAGE_SIZE, total).toLocaleString() : "0";
+    document.getElementById("r-pg").textContent = "Page " + (state.rPage + 1) + " of " + pages;
+    document.getElementById("r-prev").disabled = state.rPage === 0;
+    document.getElementById("r-next").disabled = state.rPage >= pages - 1;
+    document.getElementById("ranges-empty").style.display = total ? "none" : "block";
+
+    document.getElementById("ranges-body").innerHTML = slice.map(function (r) {
+      return '<tr class="data-row" data-hmdb="' + esc(r.hmdb) + '">' +
+        '<td><span class="mname">' + esc(r.name) + '</span><span class="hid mono">' + esc(r.hmdb) + "</span></td>" +
+        "<td>" + esc(r.bio) + "</td>" +
+        '<td class="num">' + r.n + (r.review ? ' <span class="chip warn" title="' + r.review +
+          ' value(s) needed interpretation when parsed">' + r.review + "</span>" : "") + "</td>" +
+        '<td class="num">' + fmt(r.median) + "</td>" +
+        '<td class="num">' + fmt(r.p25) + " – " + fmt(r.p75) + "</td>" +
+        '<td class="num">' + fmt(r.low) + " – " + fmt(r.high) + "</td>" +
+        '<td><span class="chip">' + esc(r.unit) + "</span></td></tr>";
+    }).join("");
+
+    Array.prototype.forEach.call(document.querySelectorAll("#ranges-body .data-row"), function (tr) {
+      tr.addEventListener("click", function () { selectMetabolite(tr.getAttribute("data-hmdb")); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("th.sortable"), function (th) {
+      var k = th.getAttribute("data-sort");
+      th.querySelector(".arrow").textContent = k === state.sortKey ? (state.sortDir === 1 ? "▲" : "▼") : "";
+    });
+  }
+
+  function detailRows() {
+    // Comparison across biospecimens is the point here, so the biospecimen
+    // filter is deliberately ignored inside the detail panel.
+    return computeRanges({ onlyMetabolite: state.selected, ignoreBio: true })
+      .sort(function (a, b) { return b.n - a.n; });
+  }
+
+  function selectMetabolite(hmdbId) {
+    state.selected = hmdbId;
+    var rows = detailRows();
+    var panel = document.getElementById("detail");
+    panel.style.display = "";
+    document.getElementById("d-name").textContent = METS[hmdbId];
+    document.getElementById("d-sub").innerHTML = '<span class="mono">' + esc(hmdbId) +
+      "</span> · median, interquartile range and observed range by biospecimen";
+
+    renderRangeChart(rows, document.getElementById("d-chart"));
+
+    // The underlying measurements, so no value is reachable only via a tooltip.
+    var list = [];
+    for (var i = 0; i < MEAS.length; i++) {
+      var m = MEAS[i];
+      if (m[HMDB] === hmdbId && plottable(m) && passes(m, { ignoreBio: true })) list.push(m);
+    }
+    list.sort(function (a, b) { return a[REP] - b[REP]; });
+
+    var html = '<h3 style="font-size:15px;margin-top:24px">Contributing measurements (' +
+      list.length + ')</h3><div class="src-scroll"><ul class="src-list">';
+    list.slice(0, 60).forEach(function (m) {
+      var ref = m[REF] != null ? REFS[m[REF]] : null;
+      var cite = ref
+        ? (ref[0] ? '<a href="https://pubmed.ncbi.nlm.nih.gov/' + esc(ref[0]) +
+            '/" target="_blank" rel="noopener">PMID ' + esc(ref[0]) + "</a> · " : "") +
+          esc(String(ref[1] || "").slice(0, 140))
+        : '<span class="muted">no citation recorded</span>';
+      html += '<li><span class="v">' + esc(m[RAW]) + "</span><span>" + esc(BIOS[m[BIO]]) +
+        " · " + esc(m[AGE] || "–") + " · " + esc(m[SEX] || "–") + "<br>" + cite +
+        (m[REVIEW] === 1 && m[NOTE] ? '<br><span class="chip warn">' + esc(m[NOTE]) + "</span>" : "") +
+        "</span></li>";
+    });
+    if (list.length > 60) html += '<li><span class="muted">… and ' + (list.length - 60) +
+      " more; the All measurements tab lists them all</span></li>";
+    document.getElementById("d-sources").innerHTML = html + "</ul></div>";
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function renderMeas() {
+    var rows = [];
+    for (var i = 0; i < MEAS.length; i++) if (passes(MEAS[i])) rows.push(MEAS[i]);
+
+    var total = rows.length, pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (state.mPage >= pages) state.mPage = pages - 1;
+    if (state.mPage < 0) state.mPage = 0;
+    var start = state.mPage * PAGE_SIZE, slice = rows.slice(start, start + PAGE_SIZE);
+
+    document.getElementById("m-total").textContent = total.toLocaleString();
+    document.getElementById("m-range").textContent = total
+      ? (start + 1).toLocaleString() + "–" + Math.min(start + PAGE_SIZE, total).toLocaleString() : "0";
+    document.getElementById("m-pg").textContent = "Page " + (state.mPage + 1) + " of " + pages;
+    document.getElementById("m-prev").disabled = state.mPage === 0;
+    document.getElementById("m-next").disabled = state.mPage >= pages - 1;
+    document.getElementById("meas-empty").style.display = total ? "none" : "block";
+
+    document.getElementById("meas-body").innerHTML = slice.map(function (m) {
+      var u = UNITS[m[UNIT]], ref = m[REF] != null ? REFS[m[REF]] : null;
+      var parsed = (m[OK] === 1 && m[REP] != null)
+        ? fmt(m[REP]) + (m[REVIEW] === 1 ? ' <span class="chip warn" title="' + esc(m[NOTE] || "") + '">?</span>' : "")
+        : '<span class="muted" title="' + esc(m[NOTE] || "not numerically parseable") + '">not parsed</span>';
+      return "<tr><td><span class=\"mname\">" + esc(METS[m[HMDB]]) + '</span><span class="hid mono">' +
+        esc(m[HMDB]) + "</span></td><td>" + esc(BIOS[m[BIO]]) + '</td><td class="num mono">' +
+        esc(m[RAW]) + '</td><td class="num">' + parsed + '</td><td><span class="chip' +
+        (u[2] ? "" : " warn") + '" title="' + esc(u[1]) + '">' + esc(u[0]) + "</span></td><td>" +
+        esc(m[AGE] || "–") + "</td><td>" + esc(m[SEX] || "–") + "</td><td>" +
+        (ref && ref[0] ? '<a href="https://pubmed.ncbi.nlm.nih.gov/' + esc(ref[0]) +
+          '/" target="_blank" rel="noopener" class="mono" style="font-size:11.5px">' + esc(ref[0]) + "</a>"
+          : '<span class="muted">–</span>') + "</td></tr>";
+    }).join("");
+  }
+
+  function render() { if (state.tab === "ranges") renderRanges(); else renderMeas(); }
+
+  function fill(id, pairs) {
+    var sel = document.getElementById(id);
+    pairs.forEach(function (p) {
+      var o = document.createElement("option");
+      o.value = p[0]; o.textContent = p[1];
+      sel.appendChild(o);
+    });
+  }
+
+  function init() {
+    renderKpis(); renderBioChart(); renderExcluded();
+
+    fill("f-bio", Object.keys(BIOS).map(function (id) { return [id, BIOS[id]]; })
+      .sort(function (a, b) { return a[1].localeCompare(b[1]); }));
+    var ages = {}, sexes = {};
+    MEAS.forEach(function (m) { if (m[AGE]) ages[m[AGE]] = 1; if (m[SEX]) sexes[m[SEX]] = 1; });
+    fill("f-age", Object.keys(ages).sort().map(function (a) { return [a, a]; }));
+    fill("f-sex", Object.keys(sexes).sort().map(function (s) { return [s, s]; }));
+
+    var qEl = document.getElementById("q"), t;
+    qEl.addEventListener("input", function () {
+      clearTimeout(t);
+      t = setTimeout(function () {
+        state.q = qEl.value.trim(); state.rPage = 0; state.mPage = 0; render();
+      }, 140);
+    });
+    [["f-bio", "bio"], ["f-age", "age"], ["f-sex", "sex"]].forEach(function (p) {
+      document.getElementById(p[0]).addEventListener("change", function (e) {
+        state[p[1]] = e.target.value; state.rPage = 0; state.mPage = 0;
+        render();
+        if (state.selected) renderRangeChart(detailRows(), document.getElementById("d-chart"));
+      });
+    });
+    document.getElementById("f-minn").addEventListener("change", function (e) {
+      state.minN = +e.target.value; state.rPage = 0; renderRanges();
+    });
+    document.getElementById("clear").addEventListener("click", function () {
+      state.q = ""; state.bio = ""; state.age = ""; state.sex = ""; state.minN = 3;
+      state.rPage = 0; state.mPage = 0;
+      qEl.value = "";
+      ["f-bio", "f-age", "f-sex"].forEach(function (id) { document.getElementById(id).value = ""; });
+      document.getElementById("f-minn").value = "3";
+      render();
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll("th.sortable"), function (th) {
+      th.addEventListener("click", function () {
+        var k = th.getAttribute("data-sort");
+        if (state.sortKey === k) state.sortDir = -state.sortDir;
+        else { state.sortKey = k; state.sortDir = (k === "name" || k === "bio") ? 1 : -1; }
+        state.rPage = 0; renderRanges();
+      });
+    });
+
+    document.getElementById("r-prev").addEventListener("click", function () { state.rPage--; renderRanges(); });
+    document.getElementById("r-next").addEventListener("click", function () { state.rPage++; renderRanges(); });
+    document.getElementById("m-prev").addEventListener("click", function () { state.mPage--; renderMeas(); });
+    document.getElementById("m-next").addEventListener("click", function () { state.mPage++; renderMeas(); });
+    document.getElementById("d-close").addEventListener("click", function () {
+      document.getElementById("detail").style.display = "none";
+      state.selected = null;
+    });
+
+    function setTab(name) {
+      state.tab = name;
+      var isR = name === "ranges";
+      document.getElementById("tab-ranges").setAttribute("aria-selected", String(isR));
+      document.getElementById("tab-meas").setAttribute("aria-selected", String(!isR));
+      document.getElementById("panel-ranges").hidden = !isR;
+      document.getElementById("panel-meas").hidden = isR;
+      render();
+    }
+    document.getElementById("tab-ranges").addEventListener("click", function () { setTab("ranges"); });
+    document.getElementById("tab-meas").addEventListener("click", function () { setTab("meas"); });
+
+    var rt;
+    window.addEventListener("resize", function () {
+      clearTimeout(rt);
+      rt = setTimeout(function () {
+        if (state.selected) renderRangeChart(detailRows(), document.getElementById("d-chart"));
+      }, 150);
+    });
+
+    render();
+  }
+
+  init();
+})();
+</script>
