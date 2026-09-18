@@ -1,5 +1,11 @@
+# Source data: HMDB's XML release is ~6.5 GB. Download it from https://hmdb.ca/downloads and place it in data/ before running pipeline/1_extract_hmdb.py.
 *.xml
-.DS_Store
+data/hmdb_normal_concentrations_raw.csv
+data/hmdb_concentrations_parsed.csv
+data/*.db
 *.db-journal
+
+.DS_Store
 __pycache__/
+notes/
 _to_delete/

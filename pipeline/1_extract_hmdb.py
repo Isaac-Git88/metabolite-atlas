@@ -1,8 +1,31 @@
+"""
+Step 1 -- extract normal-concentration records from the HMDB XML release.
+
+Streams data/hmdb_metabolites.xml (~6.5 GB) with iterparse, clearing each
+element after use so memory stays flat, and writes one CSV row per reported
+concentration: 51,246 rows, including those with no value recorded.
+
+Input:  data/hmdb_metabolites.xml   (download from https://hmdb.ca/downloads)
+Output: data/hmdb_normal_concentrations_raw.csv
+
+Usage:
+    python pipeline/1_extract_hmdb.py
+"""
+
 import csv
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
-XML_FILE = "hmdb_metabolites.xml"
-OUTPUT_FILE = "hmdb_normal_concentrations_raw.csv"
+# Paths are anchored to this script's own folder, so every step runs correctly
+# from any working directory. Inputs and generated data live in data/, the
+# website in explorer/.
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
+DATA = ROOT / "data"
+EXPLORER = ROOT / "explorer"
+
+XML_FILE = DATA / "hmdb_metabolites.xml"
+OUTPUT_FILE = DATA / "hmdb_normal_concentrations_raw.csv"
 
 NAMESPACE = {"hmdb": "http://www.hmdb.ca"}
 METABOLITE_TAG = "{http://www.hmdb.ca}metabolite"

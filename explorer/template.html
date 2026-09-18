@@ -11,6 +11,7 @@
     --shadow: 0 1px 2px rgba(20,24,31,.04), 0 8px 24px rgba(20,24,31,.05);
     /* chart tokens -- validated against the light surface */
     --series-1: #2a78d6;
+    --iqr-fill: #86b6ef;
     --series-1-wash: rgba(42,120,214,.12);
     --mark-context: #b4bac4;
     --grid: #e6e8ec;
@@ -23,7 +24,7 @@
     --border: #2b3140; --accent: #8296ff;
     --accent-soft: rgba(130,150,255,.12); --row-hover: rgba(130,150,255,.08);
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.35);
-    --series-1: #3987e5; --series-1-wash: rgba(57,135,229,.18);
+    --series-1: #3987e5; --iqr-fill: #1c5cab; --series-1-wash: rgba(57,135,229,.18);
     --mark-context: #5a626f; --grid: #262d3a; --axis: #383f4d;
     --warn-ink: #fab219;
   }
@@ -34,7 +35,7 @@
       --border: #2b3140; --accent: #8296ff;
       --accent-soft: rgba(130,150,255,.12); --row-hover: rgba(130,150,255,.08);
       --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.35);
-      --series-1: #3987e5; --series-1-wash: rgba(57,135,229,.18);
+      --series-1: #3987e5; --iqr-fill: #1c5cab; --series-1-wash: rgba(57,135,229,.18);
       --mark-context: #5a626f; --grid: #262d3a; --axis: #383f4d;
       --warn-ink: #fab219;
     }
@@ -83,6 +84,7 @@
     text-transform: uppercase; letter-spacing: .04em; padding: 0 8px 6px 0; }
   table.mini td { padding: 5px 8px 5px 0; border-top: 1px solid var(--border); color: var(--ink-2); }
   table.mini td.n { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+  table.mini .uclass { display: block; margin-top: 1px; font-size: 11px; color: var(--ink-3); }
 
   .note { margin-top: 12px; border-left: 3px solid var(--series-1); background: var(--series-1-wash);
     padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 13.5px; color: var(--ink-2); }
@@ -147,6 +149,8 @@
   .detail { margin-top: 14px; }
   .detail-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
   .detail-head h2 { font-size: 21px; }
+  .detail-actions { display: flex; align-items: center; gap: 8px; flex: none; flex-wrap: wrap; justify-content: flex-end; }
+  .export-note { font-size: 12px; color: var(--ink-3); }
   .detail-head .sub { font-size: 13px; color: var(--ink-2); margin-top: 3px; }
   .chart-wrap { margin-top: 14px; overflow-x: auto; }
   svg.range-chart { display: block; font-family: "Public Sans", sans-serif; }
@@ -158,7 +162,10 @@
   svg.range-chart .row-sub { fill: var(--ink-3); font-size: 10.5px; }
   svg.range-chart .value-label { fill: var(--ink-2); font-size: 11.5px; font-variant-numeric: tabular-nums; }
   svg.range-chart .whisker, svg.range-chart .cap { stroke: var(--mark-context); stroke-width: 1; }
-  svg.range-chart .iqr { fill: var(--series-1); }
+  /* The interquartile bar is a lighter step of the series hue so the median
+     dot, at full strength, reads as the emphasised mark rather than
+     disappearing into it. */
+  svg.range-chart .iqr { fill: var(--iqr-fill); }
   svg.range-chart .median-dot { fill: var(--series-1); stroke: var(--surface); stroke-width: 2; }
   svg.range-chart .hit { fill: transparent; cursor: pointer; }
   svg.range-chart .row-hl { fill: var(--row-hover); opacity: 0; pointer-events: none; }
@@ -208,7 +215,7 @@
       <h2>Excluded from comparison</h2>
       <p class="sub">Kept in the database; filtered out of concentration plots.</p>
       <table class="mini">
-        <thead><tr><th>Unit</th><th>Reason</th><th style="text-align:right">Rows</th></tr></thead>
+        <thead><tr><th>Unit &amp; class</th><th>Reason</th><th style="text-align:right">Rows</th></tr></thead>
         <tbody id="excluded-body"></tbody>
       </table>
       <div class="note">
@@ -276,7 +283,13 @@
           <h2 id="d-name"></h2>
           <div class="sub" id="d-sub"></div>
         </div>
-        <button class="btn" id="d-close">Close</button>
+        <div class="detail-actions">
+          <span class="export-note" id="d-note" role="status" aria-live="polite"></span>
+          <button class="btn" id="d-png" title="Download this chart as a PNG image">PNG</button>
+          <button class="btn" id="d-jpg" title="Download this chart as a JPEG image">JPEG</button>
+          <button class="btn" id="d-csv" title="Download the numbers behind this chart as a CSV">CSV</button>
+          <button class="btn" id="d-close">Close</button>
+        </div>
       </div>
       <div class="chart-wrap"><div id="d-chart"></div></div>
       <div id="d-sources"></div>
@@ -343,6 +356,9 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
+  // Schema stores the class snake_cased; the page shows it as prose.
+  function prettyClass(c) { return String(c || "").replace(/_/g, "-"); }
+
   function isComparable(m) { return UNITS[m[UNIT]][2] === 1; }
   function plottable(m) { return isComparable(m) && m[OK] === 1 && m[REP] != null; }
 
@@ -456,7 +472,8 @@
 
   function renderExcluded() {
     document.getElementById("excluded-body").innerHTML = EXCL.map(function (e) {
-      return "<tr><td>" + esc(e[0]) + "</td><td>" + esc(e[2]) +
+      return "<tr><td>" + esc(e[0]) +
+             '<span class="uclass">' + esc(prettyClass(e[1])) + "</span></td><td>" + esc(e[2]) +
              '</td><td class="n">' + e[3].toLocaleString() + "</td></tr>";
     }).join("");
   }
@@ -568,6 +585,162 @@
       });
       hit.addEventListener("blur", hideTip);
     });
+  }
+
+  // ---- export --------------------------------------------------------------
+  //
+  // The chart is inline SVG styled by the page stylesheet, so a serialised copy
+  // carries no colour at all. For export we clone it, drop the interaction
+  // layer, and inline an explicit light-theme style block: a dark-background
+  // image dropped into a slide or a manuscript reads as broken, so the export
+  // is always light regardless of the theme on screen.
+  var EXPORT_CSS = [
+    "text{font-family:Helvetica,Arial,sans-serif}",
+    ".grid-line{stroke:#e6e8ec;stroke-width:1}",
+    ".axis-line{stroke:#c3c2b7;stroke-width:1}",
+    ".tick-label{fill:#838d9c;font-size:10.5px}",
+    ".axis-title{fill:#838d9c;font-size:11px}",
+    ".row-label{fill:#14181f;font-size:12.5px}",
+    ".row-sub{fill:#838d9c;font-size:10.5px}",
+    ".value-label{fill:#5b6472;font-size:11.5px}",
+    ".whisker,.cap{stroke:#b4bac4;stroke-width:1}",
+    ".iqr{fill:#86b6ef}",
+    ".median-dot{fill:#2a78d6;stroke:#ffffff;stroke-width:2}",
+    ".x-title{fill:#14181f;font-size:16px;font-weight:600}",
+    ".x-sub{fill:#5b6472;font-size:11.5px}",
+    ".x-foot{fill:#838d9c;font-size:10px}"
+  ].join("");
+
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  function slug(v) {
+    return String(v == null ? "" : v).replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^_+|_+$/g, "");
+  }
+  function exportBase() {
+    return slug(METS[state.selected]) + "_" + slug(state.selected) + "_reference_ranges";
+  }
+  function note(msg) {
+    var el = document.getElementById("d-note");
+    if (!el) return;
+    el.textContent = msg;
+    if (msg) setTimeout(function () { if (el.textContent === msg) el.textContent = ""; }, 4000);
+  }
+  function saveBlob(blob, filename) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // A standalone image has to explain itself, so the export adds a title,
+  // subtitle and source line that the on-screen chart gets from the page.
+  function buildExportSvg() {
+    var src = document.querySelector("#d-chart svg");
+    if (!src) return null;
+
+    var TITLE_H = 56, FOOT_H = 24;
+    var w = +src.getAttribute("width");
+    var h = +src.getAttribute("height");
+    var total = h + TITLE_H + FOOT_H;
+
+    var svg = src.cloneNode(true);
+    // Without the page CSS these would render as opaque rectangles.
+    Array.prototype.forEach.call(svg.querySelectorAll(".hit,.row-hl"), function (n) {
+      n.parentNode.removeChild(n);
+    });
+
+    var body = document.createElementNS(SVG_NS, "g");
+    body.setAttribute("transform", "translate(0," + TITLE_H + ")");
+    while (svg.firstChild) body.appendChild(svg.firstChild);
+
+    var style = document.createElementNS(SVG_NS, "style");
+    style.textContent = EXPORT_CSS;
+
+    var bg = document.createElementNS(SVG_NS, "rect");
+    bg.setAttribute("x", "0");
+    bg.setAttribute("y", "0");
+    bg.setAttribute("width", String(w));
+    bg.setAttribute("height", String(total));
+    bg.setAttribute("fill", "#ffffff");
+
+    function txt(cls, x, y, content) {
+      var t = document.createElementNS(SVG_NS, "text");
+      t.setAttribute("class", cls);
+      t.setAttribute("x", String(x));
+      t.setAttribute("y", String(y));
+      t.textContent = content;
+      return t;
+    }
+
+    svg.appendChild(style);
+    svg.appendChild(bg);
+    svg.appendChild(body);
+    svg.appendChild(txt("x-title", 0, 22, METS[state.selected] || ""));
+    svg.appendChild(txt("x-sub", 0, 41, state.selected +
+      " · normal concentration by biospecimen · median, interquartile range and observed range"));
+    svg.appendChild(txt("x-foot", 0, total - 8,
+      "metabolite-atlas · source: Human Metabolome Database · comparable (volumetric) measurements only"));
+
+    svg.setAttribute("xmlns", SVG_NS);
+    svg.setAttribute("width", String(w));
+    svg.setAttribute("height", String(total));
+    svg.setAttribute("viewBox", "0 0 " + w + " " + total);
+    return { svg: svg, width: w, height: total };
+  }
+
+  function exportImage(mime) {
+    var built = buildExportSvg();
+    if (!built) { note("Nothing to export."); return; }
+    var SCALE = 2;                       // 2x so it stays sharp in slides and print
+    var isJpeg = mime === "image/jpeg";
+    var markup = new XMLSerializer().serializeToString(built.svg);
+    var img = new Image();
+
+    img.onload = function () {
+      var c = document.createElement("canvas");
+      c.width = built.width * SCALE;
+      c.height = built.height * SCALE;
+      var ctx = c.getContext("2d");
+      // JPEG has no alpha channel; without this the transparent areas come out black.
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(function (blob) {
+        if (!blob) { note("Export failed."); return; }
+        saveBlob(blob, exportBase() + (isJpeg ? ".jpg" : ".png"));
+        note("Saved " + (isJpeg ? "JPEG" : "PNG") + ".");
+      }, mime, isJpeg ? 0.92 : undefined);
+    };
+    img.onerror = function () { note("Could not render the chart for export."); };
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(markup);
+  }
+
+  function csvCell(v) {
+    if (v == null) return "";
+    var s = String(v);
+    return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  function exportCsv() {
+    var rows = detailRows();
+    if (!rows.length) { note("Nothing to export."); return; }
+    var head = ["metabolite", "hmdb_id", "biospecimen", "unit", "n_measurements",
+                "n_references", "median", "p25", "p75", "range_low", "range_high"];
+    var lines = [head.join(",")];
+    rows.forEach(function (r) {
+      lines.push([r.name, r.hmdb, r.bio, r.unit, r.n, r.nRefs,
+                  r.median, r.p25, r.p75, r.low, r.high].map(csvCell).join(","));
+    });
+    // Full precision, not the rounded figures shown on screen -- a data export
+    // should not inherit display formatting. BOM so Excel reads UTF-8 names.
+    var blob = new Blob(["﻿" + lines.join("\r\n") + "\r\n"],
+                        { type: "text/csv;charset=utf-8" });
+    saveBlob(blob, exportBase() + ".csv");
+    note("Saved CSV (" + rows.length + " rows).");
   }
 
   function renderRanges() {
@@ -756,8 +929,12 @@
     document.getElementById("r-next").addEventListener("click", function () { state.rPage++; renderRanges(); });
     document.getElementById("m-prev").addEventListener("click", function () { state.mPage--; renderMeas(); });
     document.getElementById("m-next").addEventListener("click", function () { state.mPage++; renderMeas(); });
+    document.getElementById("d-png").addEventListener("click", function () { exportImage("image/png"); });
+    document.getElementById("d-jpg").addEventListener("click", function () { exportImage("image/jpeg"); });
+    document.getElementById("d-csv").addEventListener("click", exportCsv);
     document.getElementById("d-close").addEventListener("click", function () {
       document.getElementById("detail").style.display = "none";
+      note("");
       state.selected = null;
     });
 

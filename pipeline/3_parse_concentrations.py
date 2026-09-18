@@ -1,3 +1,29 @@
+"""
+Step 3 -- turn HMDB's free-text concentrations into numbers, and classify units.
+
+HMDB writes concentrations as prose ("7.7 +/- 1.9", "37 (10 - 76)", "<0.5"), in
+at least seven shapes. This parses them into mean / SD / min / max and records
+HOW each value was read, so every number stays traceable to its source string.
+99.9% of rows parse; the remainder are malformed in HMDB itself and are kept
+with parse_ok = 0 rather than guessed at.
+
+It also classifies each unit by measurement type and marks which are mutually
+comparable, per the decision agreed with Oliver Jones (Sep 2026): volumetric
+measurements are comparable and expressed as umol/L; creatinine-normalised and
+mass-normalised records are kept but excluded from concentration comparisons,
+because no conversion exists between them without data HMDB does not hold.
+Classification is rule-based rather than a list of the units HMDB happens to
+use, so YMDB, BMDB and ECMDB units are classified on load, and anything
+unrecognised defaults to NOT comparable.
+
+Input:  data/hmdb_normal_concentrations_clean.csv
+Output: data/hmdb_concentrations_parsed.csv
+
+Usage:
+    python pipeline/3_parse_concentrations.py
+    python pipeline/3_parse_concentrations.py --report   # coverage, no output file
+"""
+
 import argparse
 import csv
 import re
@@ -5,14 +31,16 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-# Paths are anchored to this script's own folder, so the pipeline runs correctly
-# whatever the current working directory is. Version2 outputs live beside this
-# script; the large shared inputs stay in the project root, one level up.
+# Paths are anchored to this script's own folder, so every step runs correctly
+# from any working directory. Inputs and generated data live in data/, the
+# website in explorer/.
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
+DATA = ROOT / "data"
+EXPLORER = ROOT / "explorer"
 
-INPUT_FILE = ROOT / "hmdb_normal_concentrations_clean.csv"
-OUTPUT_FILE = HERE / "hmdb_concentrations_parsed.csv"
+INPUT_FILE = DATA / "hmdb_normal_concentrations_clean.csv"
+OUTPUT_FILE = DATA / "hmdb_concentrations_parsed.csv"
 
 # ---------------------------------------------------------------------------
 # Unit handling -- the supervisor-agreed classification.
@@ -21,13 +49,58 @@ OUTPUT_FILE = HERE / "hmdb_concentrations_parsed.csv"
 # unit_class    : what kind of measurement this is
 # is_comparable : may this row appear in cross-metabolite concentration plots?
 # ---------------------------------------------------------------------------
-UNITS = {
-    "uM":                   ("umol/L",               "volumetric",           1),
-    "umol/mmol creatinine": ("umol/mmol creatinine", "creatinine_normalised", 0),
-    "nmol/mmol creatinine": ("nmol/mmol creatinine", "creatinine_normalised", 0),
-    "nmol/g wet feces":     ("nmol/g wet feces",     "fecal_mass",           0),
-    "nmol/g dry feces":     ("nmol/g dry feces",     "fecal_mass",           0),
+# Units that name the same quantity get the same display label. Micromolar and
+# micromoles per litre are identical -- 1 uM == 1 umol/L -- so this is a
+# relabelling, never a conversion: no arithmetic is applied to any value.
+DISPLAY_OVERRIDES = {
+    "um": "umol/L",
+    "umol/l": "umol/L",
+    "mm": "mmol/L",
+    "nm": "nmol/L",
+    "pm": "pmol/L",
 }
+
+
+def classify_unit(unit_name):
+    """Decide a unit's measurement type from its text.
+
+    Returns (display_name, unit_class, is_comparable).
+
+    Deliberately rule-based rather than a lookup table of the five units HMDB
+    currently uses, so that units introduced by YMDB, BMDB and ECMDB are
+    classified on load instead of falling through. Anything unrecognised is
+    marked 'unclassified' and is NOT comparable, so an unknown unit can never
+    silently enter a plot.
+    """
+    key = (unit_name or "").strip().lower()
+    if not key:
+        return unit_name, "unclassified", 0
+
+    # Normalised to creatinine: a mole-per-mole ratio, not a concentration.
+    if "creatinine" in key:
+        return unit_name, "creatinine_normalised", 0
+
+    # Amount per unit mass of sample -- feces, tissue, dry weight and so on.
+    if re.search(r"/\s*(g|mg|kg)\b", key):
+        return unit_name, "mass_normalised", 0
+
+    # Mass per unit volume (ug/mL, mg/dL, ng/mL). These look volumetric but are
+    # NOT comparable with molar concentrations without the metabolite's molar
+    # mass, which HMDB does not carry, so they get their own class. HMDB has
+    # none of these; MetaboLights and Metabolomics Workbench do, and the
+    # project brief names ng/ml and ug/g explicitly.
+    if re.fullmatch(r"[munpf]?g\s*/\s*(l|dl|ml|ul|cl)", key):
+        return unit_name, "mass_per_volume", 0
+
+    # Amount of substance per unit volume, however it happens to be spelled.
+    if key in DISPLAY_OVERRIDES:
+        return DISPLAY_OVERRIDES[key], "volumetric", 1
+    if re.fullmatch(r"[munp]?mol\s*/\s*l", key) or re.fullmatch(r"[munp]?m", key):
+        return unit_name, "volumetric", 1
+    if re.search(r"\bmol\s*/\s*(l|dl|ml|ul)\b", key):
+        return unit_name, "volumetric", 1
+
+    return unit_name, "unclassified", 0
 
 # ---------------------------------------------------------------------------
 # Text normalisation
@@ -264,7 +337,7 @@ def main():
 
     if not INPUT_FILE.exists():
         raise FileNotFoundError(
-            "Couldn't find %s. It should be in the project root, one level above Version2."
+            "Couldn't find %s. Run 2_remove_empty_concentrations.py first."
             % INPUT_FILE
         )
 
@@ -283,11 +356,9 @@ def main():
             parsed = parse_value(raw)
 
             unit = (row["concentration_units"] or "").strip()
-            if unit in UNITS:
-                unit_std, unit_class, is_comp = UNITS[unit]
-            else:
+            unit_std, unit_class, is_comp = classify_unit(unit)
+            if unit_class == "unclassified":
                 unknown_units[unit] += 1
-                unit_std, unit_class, is_comp = unit, "unknown", 0
 
             patterns[parsed["parse_pattern"]] += 1
             comparable += is_comp
@@ -317,7 +388,7 @@ def main():
 
     if unknown_units:
         print()
-        print("WARNING -- units not in the agreed classification:")
+        print("WARNING -- units the classifier could not place (not comparable):")
         for u, n in unknown_units.most_common():
             print("  %r  (%s rows)" % (u, format(n, ",")))
 
