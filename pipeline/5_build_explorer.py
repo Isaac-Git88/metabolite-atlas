@@ -1,15 +1,35 @@
+"""
+Step 5 -- build the standalone web explorer.
+
+Reads the database, serialises it to JSON, and splices it into
+explorer/template.html to produce explorer/index.html: a single self-contained
+file with no build step, no dependencies and no network calls at runtime beyond
+web fonts. Host it on GitHub Pages or open it locally.
+
+Edit explorer/template.html to change the page; index.html is generated and any
+hand edit to it is lost on the next build.
+
+Input:  data/metabolite_atlas.db, explorer/template.html
+Output: explorer/index.html
+
+Usage:
+    python pipeline/5_build_explorer.py
+"""
+
 import json
 import sqlite3
 from pathlib import Path
 
-# Paths are anchored to this script's own folder, so the pipeline runs correctly
-# whatever the current working directory is. Version2 outputs live beside this
-# script; the large shared inputs stay in the project root, one level up.
+# Paths are anchored to this script's own folder, so every step runs correctly
+# from any working directory. Inputs and generated data live in data/, the
+# website in explorer/.
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
+DATA = ROOT / "data"
+EXPLORER = ROOT / "explorer"
 
-DB_PATH = HERE / "metabolite_atlas_v2.db"
-OUT_PATH = HERE / "metabolite_atlas_explorer_v2.html"
+DB_PATH = DATA / "metabolite_atlas.db"
+OUT_PATH = EXPLORER / "index.html"
 
 
 def export_data(conn):
@@ -77,7 +97,7 @@ def export_data(conn):
 def main():
     if not DB_PATH.exists():
         raise FileNotFoundError(
-            "Couldn't find %s. Run normalize_db_v2.py first." % DB_PATH)
+            "Couldn't find %s. Run 4_build_database.py first." % DB_PATH)
 
     print("Reading %s ..." % DB_PATH)
     conn = sqlite3.connect(DB_PATH)
@@ -92,7 +112,7 @@ def main():
     payload = json.dumps(data, separators=(",", ":"))
     payload = payload.replace("</script", "<\\/script")
 
-    template = Path(__file__).with_name("explorer_v2_template.html").read_text(encoding="utf-8")
+    template = (EXPLORER / "template.html").read_text(encoding="utf-8")
     page = template.replace("__ATLAS_DATA_JSON__", payload)
 
     OUT_PATH.write_text(page, encoding="utf-8")

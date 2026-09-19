@@ -1,15 +1,42 @@
+"""
+Step 4 -- build the normalised SQLite database and the reference-range table.
+
+Five related tables (metabolites, biospecimens, concentration_units,
+references, measurements) plus reference_ranges: the summary statistics the
+project exists to produce, one row per metabolite x biospecimen.
+
+Method, and its limits -- state these in the report:
+  Each measurement contributes one representative value: the mean as reported,
+  or the midpoint of a reported range where no mean was given. Studies are
+  pooled UNWEIGHTED, because HMDB does not record sample sizes, so a study of 8
+  subjects counts the same as one of 800. The statistics therefore describe the
+  spread of reported values across the literature, not a sample-weighted
+  population distribution. One-sided detection limits ("<0.5") are retained in
+  measurements but excluded from the statistics, since they give no point
+  estimate.
+
+Input:  data/hmdb_concentrations_parsed.csv
+Output: data/metabolite_atlas.db
+
+Usage:
+    pip install pandas
+    python pipeline/4_build_database.py
+"""
+
 import sqlite3
 import pandas as pd
 from pathlib import Path
 
-# Paths are anchored to this script's own folder, so the pipeline runs correctly
-# whatever the current working directory is. Version2 outputs live beside this
-# script; the large shared inputs stay in the project root, one level up.
+# Paths are anchored to this script's own folder, so every step runs correctly
+# from any working directory. Inputs and generated data live in data/, the
+# website in explorer/.
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
+DATA = ROOT / "data"
+EXPLORER = ROOT / "explorer"
 
-CSV_PATH = HERE / "hmdb_concentrations_parsed.csv"
-DB_PATH = HERE / "metabolite_atlas_v2.db"
+CSV_PATH = DATA / "hmdb_concentrations_parsed.csv"
+DB_PATH = DATA / "metabolite_atlas.db"
 
 SCHEMA = """
 CREATE TABLE metabolites (
@@ -30,7 +57,8 @@ CREATE TABLE concentration_units (
     unit_id         INTEGER PRIMARY KEY AUTOINCREMENT,
     unit_name       TEXT NOT NULL UNIQUE,   -- as written in HMDB
     unit_std        TEXT NOT NULL,          -- display label (uM -> umol/L)
-    unit_class      TEXT NOT NULL,          -- volumetric | creatinine_normalised | fecal_mass
+    unit_class      TEXT NOT NULL,          -- volumetric | mass_per_volume | creatinine_normalised
+                                            -- | mass_normalised | unclassified
     is_comparable   INTEGER NOT NULL        -- 1 = may appear in concentration plots
 );
 
@@ -149,7 +177,7 @@ def to_num(series):
 def main():
     if not CSV_PATH.exists():
         raise FileNotFoundError(
-            "Couldn't find %s. Run parse_concentrations.py first." % CSV_PATH
+            "Couldn't find %s. Run 3_parse_concentrations.py first." % CSV_PATH
         )
 
     print("Reading %s ..." % CSV_PATH)
