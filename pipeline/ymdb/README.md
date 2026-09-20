@@ -13,21 +13,20 @@ YMDB's official downloads do not contain the concentration data:
 | `ymdb.sdf` | 2,025 metabolites | none (structure and properties only) |
 | `protein_sequences.fasta` / `gene_sequences.fasta` | 995 proteins | none |
 
-Concentrations only appear on each metabolite's page, so step 2 downloads every page's
+Concentrations only appear on each metabolite's page, so `extract_ymdb_concentrations.py` downloads every page's
 XML version (`https://www.ymdb.ca/compounds/YMDBxxxxx.xml`) and extracts them.
 
 ## Steps
 
 ```
-pip install pandas requests
+pip install requests
 
-python pipeline/ymdb/0_extract_ymdb_downloads.py      # downloads -> CSVs (JSON, SDF, FASTA)
 python pipeline/ymdb/ymdb_links.py                   # -> data/ymdb/ymdb_all_metabolite_links.csv
 python pipeline/ymdb/extract_ymdb_concentrations.py all --workers 8
                                                       # -> data/ymdb/ymdb_concentrations_all.csv
 ```
 
-Step 2 is slow: the YMDB server takes 10–60 s per page and returns 502 errors under load.
+The concentration step is slow: the YMDB server takes 10–60 s per page and returns 502 errors under load.
 The full run (16,500 IDs) took about 10 hours. It is resumable, so it can be stopped and
 restarted. `extract` alone rebuilds the CSV from the saved pages in about 10 seconds.
 
@@ -57,5 +56,4 @@ Units are recorded as published, not converted:
 | `ymdb_concentrations_all.csv` | yes | **the entry point**: one row per concentration measurement |
 | `ymdb_all_metabolite_links.csv` | yes | page and XML link for every ID YMDB00001–YMDB16500 |
 | `downloads/` | no | the original YMDB download files; get them from https://www.ymdb.ca/downloads |
-| `ymdb_sdf_full.csv`, `ymdb_json_full.csv.gz`, `json_tables/`, `ymdb_protein_sequences.csv`, `ymdb_gene_sequences.csv` | no | extracts of the downloads; rebuild with `0_extract_ymdb_downloads.py` |
 | `xml/`, `status.jsonl` | no | scrape working files; rebuild with `extract_ymdb_concentrations.py` |
