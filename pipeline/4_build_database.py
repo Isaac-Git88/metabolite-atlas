@@ -39,6 +39,17 @@ CSV_PATH = DATA / "hmdb_concentrations_parsed.csv"
 DB_PATH = DATA / "metabolite_atlas.db"
 
 SCHEMA = """
+-- Species is recorded per measurement, not per source database. The
+-- HMDB-family databases each cover one organism, but MetaboLights and
+-- Metabolomics Workbench carry many organisms per repository, so the organism
+-- has to live on the row.
+CREATE TABLE species (
+    species_id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    scientific_name TEXT NOT NULL UNIQUE,   -- Homo sapiens
+    common_name     TEXT NOT NULL,          -- Human
+    ncbi_taxon_id   INTEGER                 -- stable external identifier
+);
+
 CREATE TABLE metabolites (
     hmdb_id         TEXT PRIMARY KEY,
     metabolite_name TEXT NOT NULL
@@ -70,6 +81,8 @@ CREATE TABLE "references" (
 
 CREATE TABLE measurements (
     measurement_id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    species_id              INTEGER NOT NULL REFERENCES species(species_id),
+    source_db               TEXT NOT NULL,   -- HMDB | YMDB | BMDB | ECMDB | ...
     hmdb_id                 TEXT NOT NULL REFERENCES metabolites(hmdb_id),
     biospecimen_id          INTEGER NOT NULL REFERENCES biospecimens(biospecimen_id),
     unit_id                 INTEGER NOT NULL REFERENCES concentration_units(unit_id),
@@ -98,6 +111,8 @@ CREATE TABLE measurements (
     reference_id            INTEGER REFERENCES "references"(reference_id)
 );
 
+CREATE INDEX idx_meas_species     ON measurements(species_id);
+CREATE INDEX idx_meas_source      ON measurements(source_db);
 CREATE INDEX idx_meas_hmdb        ON measurements(hmdb_id);
 CREATE INDEX idx_meas_biospecimen ON measurements(biospecimen_id);
 CREATE INDEX idx_meas_unit        ON measurements(unit_id);
@@ -109,6 +124,10 @@ CREATE INDEX idx_met_name         ON metabolites(metabolite_name);
 CREATE VIEW v_comparable AS
 SELECT
     ms.measurement_id,
+    ms.species_id,
+    sp.common_name      AS species,
+    sp.scientific_name  AS species_scientific,
+    ms.source_db,
     ms.hmdb_id,
     m.metabolite_name,
     b.name              AS biospecimen,
@@ -121,6 +140,7 @@ SELECT
     ms.reference_id,
     ms.concentration_value_raw
 FROM measurements ms
+JOIN species sp            ON sp.species_id = ms.species_id
 JOIN metabolites m         ON m.hmdb_id = ms.hmdb_id
 JOIN biospecimens b        ON b.biospecimen_id = ms.biospecimen_id
 JOIN concentration_units u ON u.unit_id = ms.unit_id
@@ -145,9 +165,14 @@ JOIN concentration_units u ON u.unit_id = ms.unit_id
 WHERE u.is_comparable = 0 OR ms.parse_ok = 0 OR ms.value_representative IS NULL
 GROUP BY 1, 2, 3;
 
--- Materialised summary statistics: one row per metabolite x biospecimen.
--- This is the "reference range" the project set out to produce.
+-- Materialised summary statistics: one row per species x metabolite x
+-- biospecimen. This is the "reference range" the project set out to produce.
+-- Species is part of the key: the same metabolite in the same biofluid is a
+-- different normal range in a different organism, which is the whole point of
+-- a cross-species atlas.
 CREATE TABLE reference_ranges (
+    species_id      INTEGER NOT NULL REFERENCES species(species_id),
+    species         TEXT NOT NULL,
     hmdb_id         TEXT NOT NULL REFERENCES metabolites(hmdb_id),
     metabolite_name TEXT NOT NULL,
     biospecimen     TEXT NOT NULL,
@@ -162,11 +187,12 @@ CREATE TABLE reference_ranges (
     range_low       REAL,
     range_high      REAL,
     n_needs_review  INTEGER NOT NULL,
-    PRIMARY KEY (hmdb_id, biospecimen)
+    PRIMARY KEY (species_id, hmdb_id, biospecimen)
 );
 
 CREATE INDEX idx_rr_name        ON reference_ranges(metabolite_name);
 CREATE INDEX idx_rr_biospecimen ON reference_ranges(biospecimen);
+CREATE INDEX idx_rr_species      ON reference_ranges(species);
 """
 
 
@@ -197,6 +223,22 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA foreign_keys = ON")
     conn.executescript(SCHEMA)
+
+    # --- species: one row per organism present in the parsed CSV ---
+    species = (df[["species_scientific", "species_common", "ncbi_taxon_id"]]
+               .dropna(subset=["species_scientific"])
+               .drop_duplicates("species_scientific")
+               .rename(columns={"species_scientific": "scientific_name",
+                                "species_common": "common_name",
+                                "ncbi_taxon_id": "ncbi_taxon_id"})
+               .sort_values("scientific_name"))
+    species["ncbi_taxon_id"] = to_num(species["ncbi_taxon_id"])
+    species.to_sql("species", conn, if_exists="append", index=False)
+    species_map = dict(conn.execute(
+        "SELECT scientific_name, species_id FROM species").fetchall())
+    print("  species:             %s" % format(len(species), ","))
+    for r in conn.execute("SELECT common_name, scientific_name, ncbi_taxon_id FROM species"):
+        print("      %-10s %-26s taxon %s" % (r[0], r[1], r[2]))
 
     # --- metabolites ---
     metabolites = df[["hmdb_id", "metabolite_name"]].drop_duplicates("hmdb_id")
@@ -233,6 +275,8 @@ def main():
 
     # --- measurements ---
     measurements = pd.DataFrame({
+        "species_id": df["species_scientific"].map(species_map),
+        "source_db": df["source_db"],
         "hmdb_id": df["hmdb_id"],
         "biospecimen_id": df["biospecimen"].map(bio_map),
         "unit_id": df["concentration_units"].map(unit_map),
@@ -269,7 +313,8 @@ def main():
     comp = pd.read_sql_query("SELECT * FROM v_comparable", conn)
     print("\n  comparable, parsed, plottable: %s rows" % format(len(comp), ","))
 
-    grouped = comp.groupby(["hmdb_id", "metabolite_name", "biospecimen", "unit"])
+    grouped = comp.groupby(["species_id", "species", "hmdb_id", "metabolite_name",
+                            "biospecimen", "unit"])
     rr = grouped.agg(
         n_measurements=("value_representative", "size"),
         n_references=("reference_id", lambda s: s.nunique()),
@@ -286,19 +331,25 @@ def main():
     lows = comp["value_min"].fillna(comp["value_representative"])
     highs = comp["value_max"].fillna(comp["value_representative"])
     bounds = (comp.assign(_lo=lows, _hi=highs)
-                  .groupby(["hmdb_id", "biospecimen"])
+                  .groupby(["species_id", "hmdb_id", "biospecimen"])
                   .agg(range_low=("_lo", "min"), range_high=("_hi", "max"))
                   .reset_index())
-    rr = rr.merge(bounds, on=["hmdb_id", "biospecimen"], how="left")
+    rr = rr.merge(bounds, on=["species_id", "hmdb_id", "biospecimen"], how="left")
 
-    rr = rr[["hmdb_id", "metabolite_name", "biospecimen", "unit",
+    rr = rr[["species_id", "species", "hmdb_id", "metabolite_name", "biospecimen", "unit",
              "n_measurements", "n_references", "mean", "median", "sd",
              "p25", "p75", "range_low", "range_high", "n_needs_review"]]
     rr.to_sql("reference_ranges", conn, if_exists="append", index=False)
-    print("  reference_ranges:    %s (metabolite x biospecimen)" % format(len(rr), ","))
+    print("  reference_ranges:    %s (species x metabolite x biospecimen)" % format(len(rr), ","))
     print("    with 3+ measurements: %s" % format(int((rr["n_measurements"] >= 3).sum()), ","))
 
     conn.commit()
+
+    print("\n  by species:")
+    for r in conn.execute("""SELECT species, COUNT(*), COUNT(DISTINCT hmdb_id)
+                               FROM reference_ranges GROUP BY 1 ORDER BY 2 DESC"""):
+        print("      %-10s %6s ranges across %s metabolites"
+              % (r[0], format(r[1], ","), format(r[2], ",")))
 
     print("\nExcluded from comparable plots (kept in the database):")
     for unit, cls, reason, n in conn.execute(

@@ -35,6 +35,10 @@ OUT_PATH = EXPLORER / "index.html"
 def export_data(conn):
     conn.row_factory = sqlite3.Row
 
+    species = {r["species_id"]: [r["common_name"], r["scientific_name"], r["ncbi_taxon_id"]]
+               for r in conn.execute(
+                   "SELECT species_id, common_name, scientific_name, ncbi_taxon_id FROM species")}
+
     metabolites = {r["hmdb_id"]: r["metabolite_name"]
                    for r in conn.execute("SELECT hmdb_id, metabolite_name FROM metabolites")}
 
@@ -54,7 +58,8 @@ def export_data(conn):
         """SELECT hmdb_id, biospecimen_id, unit_id, concentration_value_raw,
                   value_representative, value_min, value_max, value_sd,
                   parse_ok, needs_review, parse_note,
-                  subject_age, subject_sex, subject_condition, reference_id
+                  subject_age, subject_sex, subject_condition, reference_id,
+                  species_id
            FROM measurements"""
     ):
         measurements.append([
@@ -64,19 +69,7 @@ def export_data(conn):
             r["parse_ok"], r["needs_review"], r["parse_note"],
             r["subject_age"], r["subject_sex"], r["subject_condition"],
             r["reference_id"],
-        ])
-
-    ranges = []
-    for r in conn.execute(
-        """SELECT hmdb_id, metabolite_name, biospecimen, unit, n_measurements,
-                  n_references, mean, median, sd, p25, p75, range_low, range_high,
-                  n_needs_review
-           FROM reference_ranges"""
-    ):
-        ranges.append([
-            r["hmdb_id"], r["biospecimen"], r["unit"], r["n_measurements"],
-            r["n_references"], r["mean"], r["median"], r["sd"], r["p25"], r["p75"],
-            r["range_low"], r["range_high"], r["n_needs_review"],
+            r["species_id"],          # appended, so existing tuple offsets hold
         ])
 
     excluded = [[r["unit"], r["unit_class"], r["reason"], r["n"]]
@@ -84,12 +77,12 @@ def export_data(conn):
                     "SELECT unit, unit_class, reason, n FROM v_excluded ORDER BY n DESC")]
 
     return {
+        "species": species,
         "metabolites": metabolites,
         "biospecimens": biospecimens,
         "units": units,
         "references": references,
         "measurements": measurements,
-        "ranges": ranges,
         "excluded": excluded,
     }
 
@@ -104,10 +97,10 @@ def main():
     data = export_data(conn)
     conn.close()
 
-    print("  %s measurements, %s metabolites, %s reference ranges"
+    print("  %s measurements, %s metabolites, %s species"
           % (format(len(data["measurements"]), ","),
              format(len(data["metabolites"]), ","),
-             format(len(data["ranges"]), ",")))
+             format(len(data["species"]), ",")))
 
     payload = json.dumps(data, separators=(",", ":"))
     payload = payload.replace("</script", "<\\/script")

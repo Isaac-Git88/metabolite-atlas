@@ -3,25 +3,27 @@
 Reference ranges for metabolite concentrations, mined from public metabolomics
 databases.
 
-Most metabolomics studies report only the *relative* change between control and
+Most metabolomics studies report only the _relative_ change between control and
 treated groups. The more useful question is usually whether a treatment pushes a
 metabolite outside the range seen in healthy individuals — but for most
 compounds, in most species, that normal range has never been collected in one
 place. This project builds it.
 
-**Current scope: human (HMDB).** Yeast (YMDB), bovine (BMDB) and *E. coli*
+**Current scope: human (HMDB).** Yeast (YMDB), bovine (BMDB) and _E. coli_
 (ECMDB) are next; they share HMDB's schema, so the pipeline is designed to
-extend to them.
+extend to them. The database already carries species on every measurement, so
+adding a second organism needs no schema change — and the explorer's species
+controls, hidden while only one organism is loaded, appear on their own.
 
 ## What's here
 
-| | |
-|---|---|
-| **4,048** | reference ranges (metabolite × biospecimen) |
-| **2,874** | metabolites with a range |
-| **1,384** | ranges supported by 3+ independent studies |
-| **20,974** | measurements in the database |
-| **1,625** | source citations |
+|            |                                             |
+| ---------- | ------------------------------------------- |
+| **4,048**  | reference ranges (metabolite × biospecimen) |
+| **2,874**  | metabolites with a range                    |
+| **1,384**  | ranges supported by 3+ independent studies  |
+| **20,974** | measurements in the database                |
+| **1,625**  | source citations                            |
 
 ## Layout
 
@@ -57,14 +59,14 @@ Only the clean CSV and the generated site are committed. Everything else in
 `data/` is reproducible and gitignored, because git cannot diff binaries and
 would re-commit them in full on every rebuild.
 
-| File | Committed | Notes |
-|---|---|---|
-| `hmdb_metabolites.xml` | no | ~6.5 GB, download separately |
-| `hmdb_normal_concentrations_raw.csv` | no | 51,246 rows |
-| `hmdb_normal_concentrations_clean.csv` | **yes** | 20,977 rows — the entry point |
-| `hmdb_concentrations_parsed.csv` | no | numeric values + parse provenance |
-| `metabolite_atlas.db` | no | the atlas |
-| `explorer/index.html` | **yes** | self-contained site, served by GitHub Pages |
+| File                                   | Committed | Notes                                       |
+| -------------------------------------- | --------- | ------------------------------------------- |
+| `hmdb_metabolites.xml`                 | no        | ~6.5 GB, download separately                |
+| `hmdb_normal_concentrations_raw.csv`   | no        | 51,246 rows                                 |
+| `hmdb_normal_concentrations_clean.csv` | **yes**   | 20,977 rows — the entry point               |
+| `hmdb_concentrations_parsed.csv`       | no        | numeric values + parse provenance           |
+| `metabolite_atlas.db`                  | no        | the atlas                                   |
+| `explorer/index.html`                  | **yes**   | self-contained site, served by GitHub Pages |
 
 ## Two decisions worth knowing
 
@@ -93,22 +95,40 @@ statistics are computed and what they do and don't claim.
 
 Parsed medians in blood, against published reference intervals:
 
-| Metabolite | n | Median (µmol/L) | Expected |
-|---|---|---|---|
-| D-Glucose | 34 | 4,787 | ~4.8 mM ✓ |
-| Creatinine | 34 | 61.2 | 60–110 µM ✓ |
-| L-Lactic acid | 29 | 1,350 | ~1.35 mM ✓ |
-| Urea | 14 | 3,805 | ~3.8 mM ✓ |
-| Uric acid | 29 | 280 | 240–360 µM ✓ |
-| L-Glutamine | 28 | 580 | 500–750 µM ✓ |
+| Metabolite    | n   | Median (µmol/L) | Expected     |
+| ------------- | --- | --------------- | ------------ |
+| D-Glucose     | 34  | 4,787           | ~4.8 mM ✓    |
+| Creatinine    | 34  | 61.2            | 60–110 µM ✓  |
+| L-Lactic acid | 29  | 1,350           | ~1.35 mM ✓   |
+| Urea          | 14  | 3,805           | ~3.8 mM ✓    |
+| Uric acid     | 29  | 280             | 240–360 µM ✓ |
+| L-Glutamine   | 28  | 580             | 500–750 µM ✓ |
 
 Cobalamin's median of 0.0004 µmol/L looks wrong but is correct — B12 circulates
 at sub-nanomolar concentrations.
 
+## Adding another database
+
+`pipeline/3_parse_concentrations.py` carries a registry of source databases and
+the organism each describes, with NCBI taxonomy identifiers:
+
+| Source | Species                            | Taxon |
+| ------ | ---------------------------------- | ----- |
+| HMDB   | _Homo sapiens_ (Human)             | 9606  |
+| YMDB   | _Saccharomyces cerevisiae_ (Yeast) | 4932  |
+| BMDB   | _Bos taurus_ (Cow)                 | 9913  |
+| ECMDB  | _Escherichia coli_                 | 562   |
+
+Extract the new source to a clean CSV in the same column shape, then:
+
+    python pipeline/3_parse_concentrations.py --source BMDB
+
+Concatenate the parsed CSVs and run steps 4 and 5. Species is recorded on every
+measurement rather than on the source, so MetaboLights and Metabolomics
+Workbench — which carry many organisms per repository — fit the same schema.
+
 ## Next
 
-- A `species` dimension, then YMDB, BMDB and ECMDB — what makes this a
-  cross-species atlas rather than a view of HMDB.
-- Compare several metabolites within one biospecimen; look up a measured value
-  against its normal range.
-- Part 2 of the brief: MetaboLights and Metabolomics Workbench.
+- YMDB and BMDB extraction (ECMDB appears to hold no concentration data).
+- A lookup: enter a measured value and see where it falls in the normal range.
+- Part 2 of the brief: Metabolomics Workbench, then MetaboLights.

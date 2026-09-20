@@ -49,6 +49,24 @@ OUTPUT_FILE = DATA / "hmdb_concentrations_parsed.csv"
 # unit_class    : what kind of measurement this is
 # is_comparable : may this row appear in cross-metabolite concentration plots?
 # ---------------------------------------------------------------------------
+# Which database a run is extracting, and the species it describes. Each of the
+# HMDB-family databases covers exactly one organism, so species is a property of
+# the source. Study-level repositories (MetaboLights, Metabolomics Workbench)
+# carry species per study instead, and will need the species resolved per record
+# rather than per run -- the schema downstream already allows that, because
+# species is recorded on every measurement, not on the source.
+#
+# NCBI taxonomy IDs give each organism a stable identifier that does not depend
+# on our naming choices.
+SOURCES = {
+    "HMDB":  ("Homo sapiens",             "Human",   9606),
+    "YMDB":  ("Saccharomyces cerevisiae", "Yeast",   4932),
+    "BMDB":  ("Bos taurus",               "Cow",     9913),
+    "ECMDB": ("Escherichia coli",         "E. coli",  562),
+}
+DEFAULT_SOURCE = "HMDB"
+
+
 # Units that name the same quantity get the same display label. Micromolar and
 # micromoles per litre are identical -- 1 uM == 1 umol/L -- so this is a
 # relabelling, never a conversion: no arithmetic is applied to any value.
@@ -318,6 +336,7 @@ def parse_value(raw):
 # ---------------------------------------------------------------------------
 
 OUTPUT_FIELDS = [
+    "source_db", "species_scientific", "species_common", "ncbi_taxon_id",
     "hmdb_id", "metabolite_name", "biospecimen",
     "concentration_value_raw", "concentration_units",
     "unit_std", "unit_class", "is_comparable",
@@ -333,7 +352,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--report", action="store_true",
                     help="print the pattern breakdown without writing output")
+    ap.add_argument("--source", default=DEFAULT_SOURCE, choices=sorted(SOURCES),
+                    help="which database this CSV came from (sets the species)")
     args = ap.parse_args()
+
+    species_sci, species_common, taxon_id = SOURCES[args.source]
+    print("Source: %s  ->  %s (%s), NCBI taxon %d" %
+          (args.source, species_common, species_sci, taxon_id))
+    print()
 
     if not INPUT_FILE.exists():
         raise FileNotFoundError(
@@ -369,6 +395,10 @@ def main():
 
             out = dict(row)
             out.update(parsed)
+            out["source_db"] = args.source
+            out["species_scientific"] = species_sci
+            out["species_common"] = species_common
+            out["ncbi_taxon_id"] = taxon_id
             out["unit_std"] = unit_std
             out["unit_class"] = unit_class
             out["is_comparable"] = is_comp
