@@ -175,6 +175,39 @@
   .chip-x:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
   .cmp-hint { margin-top: 10px; font-size: 12.5px; color: var(--ink-3); }
 
+  /* Status colours are reserved for state and are deliberately not themed.
+     They never carry meaning alone -- every verdict ships with a text label. */
+  :root, :root[data-theme="dark"] {
+    --status-good: #0ca30c;
+    --status-warning: #fab219;
+    --status-critical: #d03b3b;
+  }
+
+  .lk-grid { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  .lk-grid .cmp-field input[type="number"] { min-width: 150px; }
+  .verdict {
+    margin-top: 18px; display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .verdict .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; margin-top: 4px; }
+  .verdict .vtitle { font-weight: 600; font-size: 15px; }
+  .verdict .vbody { margin-top: 3px; font-size: 13.5px; color: var(--ink-2); }
+  .verdict.good .dot { background: var(--status-good); }
+  .verdict.warning .dot { background: var(--status-warning); }
+  .verdict.critical .dot { background: var(--status-critical); }
+  .verdict.unknown .dot { background: var(--mark-context); }
+  .evidence { margin-top: 12px; font-size: 12.5px; color: var(--ink-3); }
+  .evidence strong { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+  /* the entered value: distinct from the median dot by shape as well as colour */
+  svg.range-chart .mk-line { stroke-width: 2; }
+  svg.range-chart .mk-good { stroke: var(--status-good); fill: var(--status-good); }
+  svg.range-chart .mk-warning { stroke: var(--status-warning); fill: var(--status-warning); }
+  svg.range-chart .mk-critical { stroke: var(--status-critical); fill: var(--status-critical); }
+  svg.range-chart .mk-unknown { stroke: var(--mark-context); fill: var(--mark-context); }
+  svg.range-chart .mk-label { font-size: 11px; font-weight: 600; fill: var(--ink); }
+
   /* Species UI stays out of the way while the atlas holds a single organism,
      and appears by itself as soon as a second one is loaded. */
   .sp-only { display: none; }
@@ -278,6 +311,7 @@
   <div class="tabs" role="tablist">
     <button class="tab" id="tab-ranges" role="tab" aria-selected="true" aria-controls="panel-ranges">Reference ranges</button>
     <button class="tab" id="tab-compare" role="tab" aria-selected="false" aria-controls="panel-compare">Compare metabolites</button>
+    <button class="tab" id="tab-lookup" role="tab" aria-selected="false" aria-controls="panel-lookup">Check a value</button>
     <button class="tab" id="tab-meas" role="tab" aria-selected="false" aria-controls="panel-meas">All measurements</button>
   </div>
 
@@ -371,6 +405,62 @@
     </div>
   </section>
 
+  <section id="panel-lookup" role="tabpanel" aria-labelledby="tab-lookup" hidden>
+    <div class="results-head">
+      <span>Where does a measured concentration sit against the normal range?</span>
+      <span class="muted">Comparable measurements only</span>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <div class="lk-grid">
+        <label class="cmp-field" style="flex:1 1 240px">
+          <span>Metabolite</span>
+          <input type="text" id="l-met" list="l-met-list" placeholder="Type a name, e.g. D-Glucose&hellip;" autocomplete="off">
+        </label>
+        <datalist id="l-met-list"></datalist>
+        <label class="cmp-field">
+          <span>Biospecimen</span>
+          <select id="l-bio"></select>
+        </label>
+        <label class="cmp-field">
+          <span>Measured value</span>
+          <input type="number" id="l-val" step="any" min="0" placeholder="e.g. 8200">
+        </label>
+        <label class="cmp-field">
+          <span>Unit</span>
+          <select id="l-unit">
+            <option value="1">&micro;mol/L</option>
+            <option value="1000">mmol/L</option>
+            <option value="0.001">nmol/L</option>
+          </select>
+        </label>
+        <button class="btn" id="l-clear">Clear</button>
+      </div>
+
+      <div id="l-result" hidden>
+        <div class="verdict" id="l-verdict">
+          <span class="dot"></span>
+          <div>
+            <div class="vtitle" id="l-vtitle"></div>
+            <div class="vbody" id="l-vbody"></div>
+          </div>
+        </div>
+        <div class="chart-wrap"><div id="l-chart"></div></div>
+        <p class="evidence" id="l-evidence"></p>
+        <div class="detail-actions" style="margin-top:6px">
+          <span class="export-note" id="l-note" role="status" aria-live="polite"></span>
+          <button class="btn" id="l-png">PNG</button>
+          <button class="btn" id="l-jpg">JPEG</button>
+          <button class="btn" id="l-csv">CSV</button>
+        </div>
+      </div>
+
+      <div class="empty-state" id="l-empty">
+        Choose a metabolite and biospecimen, then enter a measured concentration.
+      </div>
+    </div>
+  </section>
+
   <section id="panel-meas" role="tabpanel" aria-labelledby="tab-meas" hidden>
     <div class="results-head">
       <span>Showing <strong id="m-range">&ndash;</strong> of <strong id="m-total">&ndash;</strong> measurements</span>
@@ -430,11 +520,15 @@
 
   function speciesName(id) { return SPECIES[id] ? SPECIES[id][0] : ""; }
 
+  // umol/L is stored ascii-safe; display it with the real symbol.
+  function prettyUnit(u) { return String(u || "").replace(/^umol\//, "\u00b5mol/"); }
+
   var PAGE_SIZE = 25;
   var MAX_COMPARE = 12;   // beyond this the rows stop being readable
 
   var state = { q: "", species: "", bio: "", age: "", sex: "", minN: 3,
                 cmpSpecies: null, cmpBio: null, cmpMets: [], cmpTouched: false,
+                lkMet: null, lkKey: null,
                 tab: "ranges", sortKey: "n", sortDir: -1,
                 rPage: 0, mPage: 0, selected: null };
 
@@ -584,7 +678,10 @@
     var longest = 0;
     rows.forEach(function (r) { longest = Math.max(longest, rowLabel(r).length); });
     var LABEL_W = Math.min(300, Math.max(176, Math.round(longest * 6.9) + 14));
-    var VALUE_W = 92, PAD_R = 12, ROW_H = 40, AXIS_H = 42, TOP = 8;
+    var VALUE_W = 92, PAD_R = 12, ROW_H = 40, AXIS_H = 42;
+    // a checked value draws a caret and label above its row, which needs room
+    var hasMarker = rows.some(function (r) { return r.marker && r.marker.value > 0; });
+    var TOP = hasMarker ? 32 : 8;
     var avail = container.parentNode.clientWidth || 640;
     var width = Math.max(640, avail);
     var plotW = width - LABEL_W - VALUE_W - PAD_R;
@@ -592,7 +689,10 @@
 
     var lo = Infinity, hi = -Infinity;
     rows.forEach(function (r) {
-      [r.low, r.high, r.median, r.p25, r.p75].forEach(function (v) {
+      var vs = [r.low, r.high, r.median, r.p25, r.p75];
+      // a checked value must be inside the domain, however far out it falls
+      if (r.marker && r.marker.value != null) vs.push(r.marker.value);
+      vs.forEach(function (v) {
         if (v != null && v > 0) { if (v < lo) lo = v; if (v > hi) hi = v; }
       });
     });
@@ -606,9 +706,18 @@
       return LABEL_W + ((Math.log10(v) - d0) / (d1 - d0)) * plotW;
     }
 
-    var ticks = [], e0 = Math.ceil(d0), e1 = Math.floor(d1);
-    var stepE = Math.max(1, Math.ceil((e1 - e0 + 1) / 7));
-    for (var e = e0; e <= e1; e += stepE) ticks.push(Math.pow(10, e));
+    // 1-2-5 steps rather than decades only: a range like 1,100-8,200 spans less
+    // than one power of ten and would otherwise draw a single tick.
+    var ticks = [];
+    for (var e = Math.floor(d0); e <= Math.ceil(d1); e++) {
+      [1, 2, 5].forEach(function (mult) {
+        var t = mult * Math.pow(10, e);
+        var lt = Math.log10(t);
+        if (lt >= d0 && lt <= d1) ticks.push(t);
+      });
+    }
+    ticks.sort(function (a, b) { return a - b; });
+    while (ticks.length > 8) ticks = ticks.filter(function (_, i) { return i % 2 === 0; });
     if (!ticks.length) ticks.push(Math.pow(10, Math.round((d0 + d1) / 2)));
 
     var baseY = TOP + rows.length * ROW_H;
@@ -649,6 +758,21 @@
 
       svg.push('<text class="value-label" x="' + (width - PAD_R) + '" y="' + (cy + 4) +
                '" text-anchor="end">' + fmt(r.median) + "</text>");
+
+      // The measured value: a caret and rule, not another dot, so it never reads
+      // as part of the reference range itself.
+      if (r.marker && r.marker.value > 0) {
+        var xv = x(r.marker.value);
+        if (xv != null) {
+          var cls = "mk-" + r.marker.status;
+          svg.push('<line class="mk-line ' + cls + '" x1="' + xv + '" y1="' + (cy - 15) +
+                   '" x2="' + xv + '" y2="' + (cy + 15) + '"/>');
+          svg.push('<path class="' + cls + '" d="M' + (xv - 6) + "," + (cy - 20) +
+                   " L" + (xv + 6) + "," + (cy - 20) + " L" + xv + "," + (cy - 12) + ' Z"/>');
+          svg.push('<text class="mk-label" x="' + xv + '" y="' + (cy - 24) +
+                   '" text-anchor="middle">' + fmt(r.marker.value) + "</text>");
+        }
+      }
     });
     svg.push("</svg>");
     container.innerHTML = svg.join("");
@@ -707,7 +831,13 @@
     ".median-dot{fill:#2a78d6;stroke:#ffffff;stroke-width:2}",
     ".x-title{fill:#14181f;font-size:16px;font-weight:600}",
     ".x-sub{fill:#5b6472;font-size:11.5px}",
-    ".x-foot{fill:#838d9c;font-size:10px}"
+    ".x-foot{fill:#838d9c;font-size:10px}",
+    ".mk-line{stroke-width:2}",
+    ".mk-good{stroke:#0ca30c;fill:#0ca30c}",
+    ".mk-warning{stroke:#fab219;fill:#fab219}",
+    ".mk-critical{stroke:#d03b3b;fill:#d03b3b}",
+    ".mk-unknown{stroke:#b4bac4;fill:#b4bac4}",
+    ".mk-label{font-size:11px;font-weight:600;fill:#14181f}"
   ].join("");
 
   var SVG_NS = "http://www.w3.org/2000/svg";
@@ -718,6 +848,19 @@
   // Both charts export through the same code; only the source element, the
   // caption and the filename differ.
   function exportCtx() {
+    if (state.tab === "lookup") {
+      var st = lookupState();
+      var rows = st ? [st.row] : [];
+      return {
+        sel: "#l-chart",
+        rows: rows,
+        title: (state.lkMet ? METS[state.lkMet] : "") +
+               (st ? " \u2014 " + (MULTI_SPECIES ? st.row.species + " \u00b7 " : "") + st.row.bio : ""),
+        sub: "measured value against the normal range \u00b7 median, interquartile range and observed range",
+        base: slug((state.lkMet ? METS[state.lkMet] : "value") + "_normal_range_check"),
+        noteEl: "l-note"
+      };
+    }
     if (state.tab === "compare") {
       var bio = BIOS[state.cmpBio] || "";
       return {
@@ -742,7 +885,8 @@
     };
   }
   function note(msg) {
-    var el = document.getElementById(state.tab === "compare" ? "c-note" : "d-note");
+    var el = document.getElementById(
+      state.tab === "compare" ? "c-note" : state.tab === "lookup" ? "l-note" : "d-note");
     if (!el) return;
     el.textContent = msg;
     if (msg) setTimeout(function () { if (el.textContent === msg) el.textContent = ""; }, 4000);
@@ -906,7 +1050,7 @@
         '<td class="num">' + fmt(r.median) + "</td>" +
         '<td class="num">' + fmt(r.p25) + " – " + fmt(r.p75) + "</td>" +
         '<td class="num">' + fmt(r.low) + " – " + fmt(r.high) + "</td>" +
-        '<td><span class="chip">' + esc(r.unit) + "</span></td></tr>";
+        '<td><span class="chip">' + esc(prettyUnit(r.unit)) + "</span></td></tr>";
     }).join("");
 
     Array.prototype.forEach.call(document.querySelectorAll("#ranges-body .data-row"), function (tr) {
@@ -1088,6 +1232,149 @@
     renderCompare();
   }
 
+  // ---- check a measured value against the normal range ----------------------
+  //
+  // The question the project exists to answer: not "did this change" but "is it
+  // outside the range seen in healthy individuals". Reuses the range chart so
+  // the marks mean the same thing here as everywhere else, and adds a caret for
+  // the value being checked -- a different shape from the median dot, so the two
+  // can never be confused.
+  //
+  // A verdict is only as good as the evidence under it, so a range backed by
+  // fewer than three measurements returns "not enough evidence" rather than a
+  // confident answer it cannot support.
+  var MIN_EVIDENCE = 3;
+
+  function lookupOptions() {
+    // every species x biospecimen this metabolite has a range in
+    if (!state.lkMet) return [];
+    return computeRanges({ onlyMetabolite: state.lkMet, ignoreBio: true,
+                           ignoreText: true, ignoreSpecies: true })
+      .sort(function (a, b) { return b.n - a.n; });
+  }
+
+  function lookupKey(r) { return r.specId + "|" + r.bio; }
+
+  function lookupValues(row) {
+    var out = [];
+    for (var i = 0; i < MEAS.length; i++) {
+      var m = MEAS[i];
+      if (m[HMDB] !== state.lkMet || !plottable(m)) continue;
+      if (String(m[SPEC]) !== String(row.specId)) continue;
+      if (BIOS[m[BIO]] !== row.bio) continue;
+      out.push(m[REP]);
+    }
+    return out.sort(function (a, b) { return a - b; });
+  }
+
+  function verdict(v, row, values) {
+    if (row.n < MIN_EVIDENCE) {
+      return { status: "unknown", title: "Not enough evidence to judge",
+               body: "This range rests on just " + row.n + " measurement" +
+                     (row.n === 1 ? "" : "s") + ", which is too thin to say whether " +
+                     fmt(v) + " " + prettyUnit(row.unit) + " is unusual. The value is shown " +
+                     "against what little is reported." };
+    }
+    var below = 0;
+    values.forEach(function (x) { if (x < v) below++; });
+    var pos = below + " of " + values.length + " study averages";
+    var ratio = row.median ? (v / row.median) : null;
+    var rel = !ratio ? ""
+            : (ratio > 0.95 && ratio < 1.05) ? "close to the median"
+            : ratio >= 1 ? fmt(ratio) + "× the median"
+            : fmt(1 / ratio) + "× below the median";
+
+    if (row.p25 != null && row.p75 != null && v >= row.p25 && v <= row.p75) {
+      return { status: "good", title: "Within the normal range",
+               body: "Inside the interquartile range (" + fmt(row.p25) + "–" +
+                     fmt(row.p75) + " " + prettyUnit(row.unit) + "), the middle half of reported " +
+                     "values. Higher than " + pos + " · " + rel + "." };
+    }
+    if (row.low != null && row.high != null && v >= row.low && v <= row.high) {
+      return { status: "warning", title: "Within the observed range, but outside the middle half",
+               body: "Reported values span " + fmt(row.low) + "–" + fmt(row.high) + " " +
+                     prettyUnit(row.unit) + ", so this has been seen — but it sits outside the " +
+                     "interquartile range. Higher than " + pos + " · " + rel +
+                     ". (The span includes minima and maxima reported by individual " +
+                     "studies, so it reaches beyond their averages.)" };
+    }
+    var dir = (row.high != null && v > row.high) ? "above" : "below";
+    return { status: "critical", title: "Outside the observed range",
+             body: "Higher than every reported value".replace("Higher than every", 
+                   dir === "above" ? "Above every" : "Below every") +
+                   " (" + fmt(row.low) + "–" + fmt(row.high) + " " + prettyUnit(row.unit) +
+                   ") · " + rel + "." };
+  }
+
+  function lookupState() {
+    var opts = lookupOptions();
+    if (!opts.length) return null;
+    var row = null;
+    for (var i = 0; i < opts.length; i++) {
+      if (lookupKey(opts[i]) === state.lkKey) { row = opts[i]; break; }
+    }
+    if (!row) { row = opts[0]; state.lkKey = lookupKey(row); }
+    return { opts: opts, row: row };
+  }
+
+  function renderLookup() {
+    var st = lookupState();
+    var bioSel = document.getElementById("l-bio");
+    var result = document.getElementById("l-result");
+    var empty = document.getElementById("l-empty");
+
+    if (!st) {
+      bioSel.innerHTML = "";
+      result.hidden = true;
+      empty.style.display = "block";
+      empty.textContent = state.lkMet
+        ? "No comparable range for that metabolite."
+        : "Choose a metabolite and biospecimen, then enter a measured concentration.";
+      return;
+    }
+
+    bioSel.innerHTML = st.opts.map(function (r) {
+      var label = (MULTI_SPECIES ? r.species + " · " : "") + r.bio +
+                  "  (n=" + r.n + ")";
+      return '<option value="' + esc(lookupKey(r)) + '">' + esc(label) + "</option>";
+    }).join("");
+    bioSel.value = state.lkKey;
+
+    var raw = parseFloat(document.getElementById("l-val").value);
+    var mult = parseFloat(document.getElementById("l-unit").value) || 1;
+    if (!isFinite(raw) || raw <= 0) {
+      result.hidden = true;
+      empty.style.display = "block";
+      empty.textContent = "Enter a measured concentration to compare it against the range.";
+      return;
+    }
+    var v = raw * mult;          // everything is held internally in umol/L
+
+    var values = lookupValues(st.row);
+    var vd = verdict(v, st.row, values);
+
+    empty.style.display = "none";
+    result.hidden = false;
+
+    var vEl = document.getElementById("l-verdict");
+    vEl.className = "verdict " + vd.status;
+    document.getElementById("l-vtitle").textContent = vd.title;
+    document.getElementById("l-vbody").textContent = vd.body;
+
+    var row = {};
+    for (var k in st.row) row[k] = st.row[k];
+    row.label = (MULTI_SPECIES ? row.species + " · " : "") + row.bio;
+    row.marker = { value: v, status: vd.status };
+    renderRangeChart([row], document.getElementById("l-chart"));
+
+    document.getElementById("l-evidence").innerHTML =
+      "Based on <strong>" + st.row.n + "</strong> measurement" + (st.row.n === 1 ? "" : "s") +
+      " from <strong>" + st.row.nRefs + "</strong> source" + (st.row.nRefs === 1 ? "" : "s") +
+      " · median <strong>" + fmt(st.row.median) + "</strong> " + esc(prettyUnit(st.row.unit)) +
+      " · reported range <strong>" + fmt(st.row.low) + "–" + fmt(st.row.high) + "</strong>" +
+      (st.row.review ? " · " + st.row.review + " value(s) flagged for review" : "");
+  }
+
   function renderMeas() {
     var rows = [];
     for (var i = 0; i < MEAS.length; i++) if (passes(MEAS[i])) rows.push(MEAS[i]);
@@ -1124,6 +1411,7 @@
   function render() {
     if (state.tab === "ranges") renderRanges();
     else if (state.tab === "compare") renderCompare();
+    else if (state.tab === "lookup") renderLookup();
     else renderMeas();
   }
 
@@ -1204,6 +1492,7 @@
 
     var TABS = [["ranges", "tab-ranges", "panel-ranges"],
                 ["compare", "tab-compare", "panel-compare"],
+                ["lookup", "tab-lookup", "panel-lookup"],
                 ["meas", "tab-meas", "panel-meas"]];
 
     function setTab(name) {
@@ -1291,6 +1580,56 @@
       renderCompare();
     });
 
+    // ---- lookup panel ----
+    // Suggestions are metabolites that actually have a comparable range, so the
+    // picker cannot offer something the check would then refuse to evaluate.
+    var withRanges = {};
+    computeRanges({ ignoreBio: true, ignoreText: true, ignoreSpecies: true })
+      .forEach(function (r) {
+        if (!withRanges[r.hmdb] || withRanges[r.hmdb] < r.n) withRanges[r.hmdb] = r.n;
+      });
+    document.getElementById("l-met-list").innerHTML = Object.keys(withRanges)
+      .sort(function (a, b) { return withRanges[b] - withRanges[a]; })
+      .slice(0, 800)
+      .map(function (h) { return '<option value="' + esc(METS[h]) + '"></option>'; })
+      .join("");
+
+    var lMet = document.getElementById("l-met"), lt;
+    function resolveMetabolite() {
+      var typed = lMet.value.trim().toLowerCase();
+      if (!typed) { state.lkMet = null; state.lkKey = null; renderLookup(); return; }
+      var hit = null;
+      for (var h in withRanges) {
+        var nm = METS[h].toLowerCase();
+        if (nm === typed || h.toLowerCase() === typed) { hit = h; break; }
+        if (!hit && nm.indexOf(typed) === 0) hit = h;
+      }
+      if (hit !== state.lkMet) { state.lkMet = hit; state.lkKey = null; }
+      renderLookup();
+    }
+    lMet.addEventListener("input", function () {
+      clearTimeout(lt); lt = setTimeout(resolveMetabolite, 160);
+    });
+    lMet.addEventListener("change", resolveMetabolite);
+
+    document.getElementById("l-bio").addEventListener("change", function (e) {
+      state.lkKey = e.target.value; renderLookup();
+    });
+    var lv;
+    document.getElementById("l-val").addEventListener("input", function () {
+      clearTimeout(lv); lv = setTimeout(renderLookup, 160);
+    });
+    document.getElementById("l-unit").addEventListener("change", renderLookup);
+    document.getElementById("l-clear").addEventListener("click", function () {
+      state.lkMet = null; state.lkKey = null;
+      lMet.value = ""; document.getElementById("l-val").value = "";
+      document.getElementById("l-unit").value = "1";
+      renderLookup();
+    });
+    document.getElementById("l-png").addEventListener("click", function () { exportImage("image/png"); });
+    document.getElementById("l-jpg").addEventListener("click", function () { exportImage("image/jpeg"); });
+    document.getElementById("l-csv").addEventListener("click", exportCsv);
+
     document.getElementById("c-png").addEventListener("click", function () { exportImage("image/png"); });
     document.getElementById("c-jpg").addEventListener("click", function () { exportImage("image/jpeg"); });
     document.getElementById("c-csv").addEventListener("click", exportCsv);
@@ -1300,6 +1639,7 @@
       clearTimeout(rt);
       rt = setTimeout(function () {
         if (state.tab === "compare") renderCompare();
+        else if (state.tab === "lookup") renderLookup();
         else if (state.selected) renderRangeChart(detailRows(), document.getElementById("d-chart"));
       }, 150);
     });
