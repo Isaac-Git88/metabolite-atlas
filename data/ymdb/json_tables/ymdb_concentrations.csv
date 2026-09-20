@@ -1,0 +1,3 @@
+ymdb_id,name,species,growth_media,concentration,concentration_units,error
+YMDB01248,PS(14:0/16:1(9Z)),Saccharomyces cerevisiae,SD media with 2% raffinose,5500.0,umol/L,7775.0
+YMDB02297,"PC(o-24:0/18:3(9Z,12Z,15Z))",Saccharomyces cerevisiae,YEB media with 0.5 mM glucose,0.028,µM,0.0014

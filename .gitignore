@@ -5,6 +5,10 @@ data/hmdb_concentrations_parsed.csv
 data/*.db
 *.db-journal
 
+# YMDB scrape working files (~70 MB of saved pages); rebuild with pipeline/ymdb/extract_ymdb_concentrations.py
+data/ymdb/xml/
+data/ymdb/status.jsonl
+
 .DS_Store
 __pycache__/
 notes/
