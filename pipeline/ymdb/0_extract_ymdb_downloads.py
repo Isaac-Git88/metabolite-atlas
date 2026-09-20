@@ -2,7 +2,8 @@
 0_extract_ymdb_downloads.py
 Convert YMDB's four official download files (https://www.ymdb.ca/downloads) to CSV.
 
-The downloads are committed in data/ymdb/downloads/:
+Download the files from https://www.ymdb.ca/downloads, unzip the SDF and FASTA
+files, and put them in data/ymdb/downloads/ (gitignored):
     ymdb.json.zip (read directly, no need to unzip), ymdb.sdf,
     protein_sequences.fasta, gene_sequences.fasta
 

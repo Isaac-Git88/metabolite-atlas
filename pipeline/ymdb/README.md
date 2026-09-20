@@ -56,6 +56,6 @@ Units are recorded as published, not converted:
 |---|---|---|
 | `ymdb_concentrations_all.csv` | yes | **the entry point**: one row per concentration measurement |
 | `ymdb_all_metabolite_links.csv` | yes | page and XML link for every ID YMDB00001–YMDB16500 |
-| `downloads/` | yes | the original YMDB download files |
+| `downloads/` | no | the original YMDB download files; get them from https://www.ymdb.ca/downloads |
 | `ymdb_sdf_full.csv`, `ymdb_json_full.csv.gz`, `json_tables/`, `ymdb_protein_sequences.csv`, `ymdb_gene_sequences.csv` | no | extracts of the downloads; rebuild with `0_extract_ymdb_downloads.py` |
 | `xml/`, `status.jsonl` | no | scrape working files; rebuild with `extract_ymdb_concentrations.py` |

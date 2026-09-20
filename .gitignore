@@ -14,6 +14,8 @@ data/ymdb/ymdb_protein_sequences.csv
 data/ymdb/ymdb_gene_sequences.csv
 data/ymdb/ymdb_json_full.csv.gz
 data/ymdb/json_tables/
+# YMDB download files: get them from https://www.ymdb.ca/downloads
+data/ymdb/downloads/
 
 .DS_Store
 __pycache__/
