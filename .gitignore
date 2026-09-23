@@ -8,6 +8,8 @@ data/*.db
 # YMDB scrape working files (~70 MB of saved pages); rebuild with pipeline/ymdb/extract_ymdb_concentrations.py
 data/ymdb/xml/
 data/ymdb/status.jsonl
+data/ymdb/ymdb_concentrations_clean.csv
+data/ymdb_concentrations_parsed.csv
 # YMDB download files: get them from https://www.ymdb.ca/downloads
 data/ymdb/downloads/
 

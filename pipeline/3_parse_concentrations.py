@@ -16,12 +16,18 @@ Classification is rule-based rather than a list of the units HMDB happens to
 use, so YMDB, BMDB and ECMDB units are classified on load, and anything
 unrecognised defaults to NOT comparable.
 
-Input:  data/hmdb_normal_concentrations_clean.csv
-Output: data/hmdb_concentrations_parsed.csv
+Input:  data/hmdb_normal_concentrations_clean.csv        (--source HMDB, the default)
+        data/ymdb/ymdb_concentrations_clean.csv         (--source YMDB)
+Output: data/<source>_concentrations_parsed.csv
 
 Usage:
     python pipeline/3_parse_concentrations.py
+    python pipeline/3_parse_concentrations.py --source YMDB
     python pipeline/3_parse_concentrations.py --report   # coverage, no output file
+
+Columns the source CSV carries beyond the ones parsed here -- native_id and
+inchikey -- are passed through untouched, because step 4 needs them to decide
+which rows describe the same metabolite in different species.
 """
 
 import argparse
@@ -39,8 +45,14 @@ ROOT = HERE.parent
 DATA = ROOT / "data"
 EXPLORER = ROOT / "explorer"
 
-INPUT_FILE = DATA / "hmdb_normal_concentrations_clean.csv"
-OUTPUT_FILE = DATA / "hmdb_concentrations_parsed.csv"
+# Per-source input and output. Each source keeps its own parsed CSV, and step 4
+# loads whichever ones exist, so adding a database never rewrites another's data.
+SOURCE_FILES = {
+    "HMDB":  (DATA / "hmdb_normal_concentrations_clean.csv", DATA / "hmdb_concentrations_parsed.csv"),
+    "YMDB":  (DATA / "ymdb" / "ymdb_concentrations_clean.csv", DATA / "ymdb_concentrations_parsed.csv"),
+    "BMDB":  (DATA / "bmdb" / "bmdb_concentrations_clean.csv", DATA / "bmdb_concentrations_parsed.csv"),
+    "ECMDB": (DATA / "ecmdb" / "ecmdb_concentrations_clean.csv", DATA / "ecmdb_concentrations_parsed.csv"),
+}
 
 # ---------------------------------------------------------------------------
 # Unit handling -- the supervisor-agreed classification.
@@ -91,6 +103,11 @@ def classify_unit(unit_name):
     silently enter a plot.
     """
     key = (unit_name or "").strip().lower()
+    # The micro prefix is written three ways in the wild: "u", the micro sign
+    # and the Greek mu. YMDB uses the micro sign for most of its rows, so
+    # without this they would all fall through to "unclassified" and silently
+    # drop out of every comparison.
+    key = key.replace("\u00b5", "u").replace("\u03bc", "u")
     if not key:
         return unit_name, "unclassified", 0
 
@@ -345,6 +362,7 @@ OUTPUT_FIELDS = [
     "parse_pattern", "parse_ok", "needs_review", "parse_note",
     "subject_age", "subject_sex", "subject_condition",
     "pubmed_ids", "reference_texts",
+    "native_id", "inchikey",
 ]
 
 
@@ -354,17 +372,23 @@ def main():
                     help="print the pattern breakdown without writing output")
     ap.add_argument("--source", default=DEFAULT_SOURCE, choices=sorted(SOURCES),
                     help="which database this CSV came from (sets the species)")
+    ap.add_argument("--input", help="override the source's default input CSV")
+    ap.add_argument("--output", help="override the source's default output CSV")
     args = ap.parse_args()
+
+    default_in, default_out = SOURCE_FILES[args.source]
+    input_file = Path(args.input) if args.input else default_in
+    output_file = Path(args.output) if args.output else default_out
 
     species_sci, species_common, taxon_id = SOURCES[args.source]
     print("Source: %s  ->  %s (%s), NCBI taxon %d" %
           (args.source, species_common, species_sci, taxon_id))
     print()
 
-    if not INPUT_FILE.exists():
+    if not input_file.exists():
         raise FileNotFoundError(
-            "Couldn't find %s. Run 2_remove_empty_concentrations.py first."
-            % INPUT_FILE
+            "Couldn't find %s. For HMDB, run 2_remove_empty_concentrations.py "
+            "first; for YMDB, run pipeline/ymdb/prepare_ymdb.py." % input_file
         )
 
     patterns = Counter()
@@ -375,7 +399,7 @@ def main():
     comparable = 0
     review = 0
 
-    with open(INPUT_FILE, "r", encoding="utf-8", newline="") as fh:
+    with open(input_file, "r", encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh):
             total += 1
             raw = row["concentration_value_raw"]
@@ -394,6 +418,8 @@ def main():
                 unparsed_examples.append(raw)
 
             out = dict(row)
+            out.setdefault("native_id", row.get("hmdb_id", ""))
+            out.setdefault("inchikey", "")
             out.update(parsed)
             out["source_db"] = args.source
             out["species_scientific"] = species_sci
@@ -432,13 +458,13 @@ def main():
         print("\n--report given: no file written.")
         return
 
-    with open(OUTPUT_FILE, "w", encoding="utf-8", newline="") as fh:
+    with open(output_file, "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=OUTPUT_FIELDS, extrasaction="ignore")
         w.writeheader()
         w.writerows(rows_out)
 
     print()
-    print("Wrote %s (%s rows)" % (OUTPUT_FILE, format(len(rows_out), ",")))
+    print("Wrote %s (%s rows)" % (output_file, format(len(rows_out), ",")))
 
 
 if __name__ == "__main__":

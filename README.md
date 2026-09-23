@@ -9,27 +9,32 @@ metabolite outside the range seen in healthy individuals — but for most
 compounds, in most species, that normal range has never been collected in one
 place. This project builds it.
 
-**Current scope: human (HMDB).** Yeast (YMDB), bovine (BMDB) and _E. coli_
-(ECMDB) are next; they share HMDB's schema, so the pipeline is designed to
-extend to them. The database already carries species on every measurement, so
-adding a second organism needs no schema change — and the explorer's species
-controls, hidden while only one organism is loaded, appear on their own.
+**Current scope: human (HMDB) and yeast (YMDB).** Bovine (BMDB) and _E. coli_
+(ECMDB) are next. Species is carried on every measurement, and metabolite
+identity is structure-based (InChIKey), so a new organism needs no schema
+change. Yeast concentrations are not in YMDB's download files and were scraped
+from its website — see `pipeline/ymdb/README.md`.
 
 ## What's here
 
-|            |                                             |
-| ---------- | ------------------------------------------- |
-| **4,048**  | reference ranges (metabolite × biospecimen) |
-| **2,874**  | metabolites with a range                    |
-| **1,384**  | ranges supported by 3+ independent studies  |
-| **20,974** | measurements in the database                |
-| **1,625**  | source citations                            |
+|            |                                                     |
+| ---------- | --------------------------------------------------- |
+| **4,913**  | reference ranges (species × metabolite × biospecimen) |
+| **3,087**  | metabolites with a range                            |
+| **2 / 657**| species, and structures measured in both of them    |
+| **1,443**  | ranges supported by 3+ independent studies          |
+| **22,437** | measurements in the database                        |
+| **1,648**  | source citations                                    |
+
+Human: 4,047 ranges across 2,873 metabolites. Yeast: 866 ranges across 866
+metabolites, 190 of which HMDB does not catalogue at all.
 
 ## Layout
 
 ```
 data/       inputs and generated data (see "Data files" below)
 pipeline/   the five steps, numbered in run order
+pipeline/ymdb/  the yeast source: scrape, then prepare for step 3
 explorer/   template.html (source) and index.html (generated site)
 archive/v1/ superseded first-pass scripts, kept as project history
 ```

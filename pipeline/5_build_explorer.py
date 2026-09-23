@@ -39,8 +39,12 @@ def export_data(conn):
                for r in conn.execute(
                    "SELECT species_id, common_name, scientific_name, ncbi_taxon_id FROM species")}
 
-    metabolites = {r["hmdb_id"]: r["metabolite_name"]
-                   for r in conn.execute("SELECT hmdb_id, metabolite_name FROM metabolites")}
+    # The page keys metabolites by a single identifier. Since the atlas now
+    # holds metabolites HMDB has never catalogued (yeast-only lipids keep their
+    # YMDB id), metabolite_id is exported under the name the page already uses.
+    metabolites = {r["metabolite_id"]: r["metabolite_name"]
+                   for r in conn.execute(
+                       "SELECT metabolite_id, metabolite_name FROM metabolites")}
 
     biospecimens = {r["biospecimen_id"]: r["name"]
                     for r in conn.execute("SELECT biospecimen_id, name FROM biospecimens")}
@@ -55,7 +59,7 @@ def export_data(conn):
 
     measurements = []
     for r in conn.execute(
-        """SELECT hmdb_id, biospecimen_id, unit_id, concentration_value_raw,
+        """SELECT metabolite_id, biospecimen_id, unit_id, concentration_value_raw,
                   value_representative, value_min, value_max, value_sd,
                   parse_ok, needs_review, parse_note,
                   subject_age, subject_sex, subject_condition, reference_id,
@@ -63,7 +67,7 @@ def export_data(conn):
            FROM measurements"""
     ):
         measurements.append([
-            r["hmdb_id"], r["biospecimen_id"], r["unit_id"],
+            r["metabolite_id"], r["biospecimen_id"], r["unit_id"],
             r["concentration_value_raw"], r["value_representative"],
             r["value_min"], r["value_max"], r["value_sd"],
             r["parse_ok"], r["needs_review"], r["parse_note"],
