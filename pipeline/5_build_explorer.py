@@ -46,6 +46,13 @@ def export_data(conn):
                    for r in conn.execute(
                        "SELECT metabolite_id, metabolite_name FROM metabolites")}
 
+    # The connectivity layer of each metabolite's InChIKey: what the
+    # cross-species view offers as a looser, opt-in structure match.
+    blocks = {r["metabolite_id"]: r["inchikey_block"]
+              for r in conn.execute(
+                  "SELECT metabolite_id, inchikey_block FROM metabolites "
+                  "WHERE inchikey_block IS NOT NULL")}
+
     biospecimens = {r["biospecimen_id"]: r["name"]
                     for r in conn.execute("SELECT biospecimen_id, name FROM biospecimens")}
 
@@ -83,6 +90,7 @@ def export_data(conn):
     return {
         "species": species,
         "metabolites": metabolites,
+        "blocks": blocks,
         "biospecimens": biospecimens,
         "units": units,
         "references": references,
