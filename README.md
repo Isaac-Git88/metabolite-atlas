@@ -9,25 +9,25 @@ metabolite outside the range seen in healthy individuals — but for most
 compounds, in most species, that normal range has never been collected in one
 place. This project builds it.
 
-**Current scope: human (HMDB) and yeast (YMDB).** Bovine (BMDB) and _E. coli_
-(ECMDB) are next. Species is carried on every measurement, and metabolite
-identity is structure-based (InChIKey), so a new organism needs no schema
-change. Yeast concentrations are not in YMDB's download files and were scraped
-from its website — see `pipeline/ymdb/README.md`.
+**Current scope: human (HMDB), yeast (YMDB) and _E. coli_ (ECMDB).** Bovine
+(BMDB) is next. Species is carried on every measurement, and metabolite identity
+is structure-based (InChIKey), so a new organism needs no schema change. Neither
+YMDB nor ECMDB publishes concentrations in its download files; both were scraped
+from their websites — see `pipeline/ymdb/README.md` and `pipeline/ecmdb/README.md`.
 
 ## What's here
 
-|            |                                                     |
-| ---------- | --------------------------------------------------- |
-| **4,913**  | reference ranges (species × metabolite × biospecimen) |
-| **3,087**  | metabolites with a range                            |
-| **2 / 657**| species, and structures measured in both of them    |
-| **1,443**  | ranges supported by 3+ independent studies          |
-| **22,437** | measurements in the database                        |
-| **1,648**  | source citations                                    |
+|            |                                                      |
+| ---------- | ---------------------------------------------------- |
+| **5,804**  | reference ranges (species × metabolite × biospecimen) |
+| **3,840**  | metabolites with a range                             |
+| **3 / 727**| species, and structures measured in more than one    |
+| **1,529**  | ranges supported by 3+ independent studies           |
+| **23,624** | measurements in the database                         |
+| **1,660**  | source citations                                     |
 
-Human: 4,047 ranges across 2,873 metabolites. Yeast: 866 ranges across 866
-metabolites, 190 of which HMDB does not catalogue at all.
+Human: 4,047 ranges across 2,873 metabolites. Yeast: 866. _E. coli_: 891, of which
+748 metabolites are not in the human data at all.
 
 ## Layout
 
@@ -35,6 +35,7 @@ metabolites, 190 of which HMDB does not catalogue at all.
 data/       inputs and generated data (see "Data files" below)
 pipeline/   the five steps, numbered in run order
 pipeline/ymdb/  the yeast source: scrape, then prepare for step 3
+pipeline/ecmdb/ the E. coli source: same two steps
 explorer/   template.html (source) and index.html (generated site)
 archive/v1/ superseded first-pass scripts, kept as project history
 ```

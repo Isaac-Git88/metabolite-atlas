@@ -13,6 +13,16 @@ data/ymdb_concentrations_parsed.csv
 # YMDB download files: get them from https://www.ymdb.ca/downloads
 data/ymdb/downloads/
 
+# ECMDB working files and rebuildable extracts
+data/ecmdb/xml/
+data/ecmdb/status.jsonl
+data/ecmdb/ecmdb_concentrations_clean.csv
+data/ecmdb_concentrations_parsed.csv
+data/ecmdb/ecmdb_metabolites.csv
+data/ecmdb/ecmdb_sdf_full.csv
+# ECMDB download files: get them from https://ecmdb.ca/downloads
+data/ecmdb/downloads/
+
 .DS_Store
 __pycache__/
 notes/

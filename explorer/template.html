@@ -471,9 +471,7 @@
         <span class="key"><span class="dash"></span> equal concentration in both species</span>
       </div>
       <p class="xs-summary" id="x-summary"></p>
-      <p class="xs-note">Points above the dashed line are higher in the second species. A whole-cell yeast
-        measurement and a human blood measurement are not the same kind of quantity, so read the
-        distance from the line as a difference in measurement basis as much as in biology.</p>
+      <p class="xs-note" id="x-caveat">Points above the dashed line are higher in the second species.</p>
       <div class="export-bar">
         <span class="export-note" id="x-note" role="status" aria-live="polite"></span>
         <button class="btn" id="x-png" title="Download this chart as a PNG image">PNG</button>
@@ -1319,6 +1317,19 @@
         " of them are higher in " + esc(state.xLabelB) + ".";
     } else { summary.textContent = ""; }
 
+    // Comparing a whole cell with a biofluid is comparing two different kinds of
+    // quantity, so the page says so whenever that is what the reader has chosen.
+    var whole = function (b) { return /whole cell/i.test(BIOS[b] || ""); };
+    var caveat = "Points above the dashed line are higher in the second species.";
+    if (whole(state.xBioA) !== whole(state.xBioB)) {
+      caveat += " One side is a whole-cell measurement and the other a biofluid, which are not the " +
+        "same kind of quantity, so read the distance from the line as a difference in measurement " +
+        "basis as much as in biology.";
+    } else if (whole(state.xBioA)) {
+      caveat += " Both sides are whole-cell measurements, so they are on the same basis.";
+    }
+    document.getElementById("x-caveat").textContent = caveat;
+
     document.getElementById("x-th-a").textContent = state.xLabelA + " median";
     document.getElementById("x-th-b").textContent = state.xLabelB + " median";
     document.getElementById("x-body").innerHTML = pairs.slice(0, 40).map(function (p) {
@@ -1894,13 +1905,31 @@
       document.getElementById("x-match").value = state.xMatch;
 
       function onChange() { labels(); if (state.tab === "cross") renderCross(); }
+      // Comparing a species with itself plots every metabolite against itself, a
+      // straight diagonal that says nothing, so picking one moves the other.
+      function otherThan(id) {
+        for (var i = 0; i < speciesPairs.length; i++) {
+          if (String(speciesPairs[i][0]) !== String(id)) return speciesPairs[i][0];
+        }
+        return id;
+      }
       elA.addEventListener("change", function (e) {
         state.xSpA = e.target.value; state.xBioA = bestBio(state.xSpA) || state.xBioA;
-        elBioA.value = state.xBioA; onChange();
+        elBioA.value = state.xBioA;
+        if (String(state.xSpB) === String(state.xSpA)) {
+          state.xSpB = otherThan(state.xSpA); elB.value = state.xSpB;
+          state.xBioB = bestBio(state.xSpB) || state.xBioB; elBioB.value = state.xBioB;
+        }
+        onChange();
       });
       elB.addEventListener("change", function (e) {
         state.xSpB = e.target.value; state.xBioB = bestBio(state.xSpB) || state.xBioB;
-        elBioB.value = state.xBioB; onChange();
+        elBioB.value = state.xBioB;
+        if (String(state.xSpA) === String(state.xSpB)) {
+          state.xSpA = otherThan(state.xSpB); elA.value = state.xSpA;
+          state.xBioA = bestBio(state.xSpA) || state.xBioA; elBioA.value = state.xBioA;
+        }
+        onChange();
       });
       elBioA.addEventListener("change", function (e) { state.xBioA = e.target.value; onChange(); });
       elBioB.addEventListener("change", function (e) { state.xBioB = e.target.value; onChange(); });
