@@ -1877,8 +1877,21 @@
       state.xBioA = bestBio(state.xSpA);
       state.xBioB = bestBio(state.xSpB);
 
-      var bioPairs = Object.keys(BIOS).map(function (id) { return [id, BIOS[id]]; })
-        .sort(function (a, b) { return a[1].localeCompare(b[1]); });
+      // Each species is offered only the biospecimens it actually has comparable
+      // ranges in. Listing all sixteen for every species invites a selection
+      // like "E. coli in Bile", which can only ever return an empty chart.
+      function biosFor(specId) {
+        var out = [];
+        Object.keys(count).forEach(function (k) {
+          var parts = k.split("|");
+          if (parts[0] === String(specId)) out.push([parts[1], BIOS[parts[1]], count[k]]);
+        });
+        out.sort(function (a, b) { return b[2] - a[2] || a[1].localeCompare(b[1]); });
+        return out.map(function (r) {
+          // the count is shown so the reader can see where the data actually is
+          return [r[0], r[1] + " (" + r[2].toLocaleString() + ")"];
+        });
+      }
 
       function fillSel(id, pairs, value) {
         var el = document.getElementById(id);
@@ -1898,9 +1911,9 @@
       labels();
 
       var elA = fillSel("x-sp-a", speciesPairs, state.xSpA);
-      var elBioA = fillSel("x-bio-a", bioPairs, state.xBioA);
+      var elBioA = fillSel("x-bio-a", biosFor(state.xSpA), state.xBioA);
       var elB = fillSel("x-sp-b", speciesPairs, state.xSpB);
-      var elBioB = fillSel("x-bio-b", bioPairs, state.xBioB);
+      var elBioB = fillSel("x-bio-b", biosFor(state.xSpB), state.xBioB);
       document.getElementById("x-minn").value = String(state.xMinN);
       document.getElementById("x-match").value = state.xMatch;
 
@@ -1915,19 +1928,21 @@
       }
       elA.addEventListener("change", function (e) {
         state.xSpA = e.target.value; state.xBioA = bestBio(state.xSpA) || state.xBioA;
-        elBioA.value = state.xBioA;
+        fillSel("x-bio-a", biosFor(state.xSpA), state.xBioA);
         if (String(state.xSpB) === String(state.xSpA)) {
           state.xSpB = otherThan(state.xSpA); elB.value = state.xSpB;
-          state.xBioB = bestBio(state.xSpB) || state.xBioB; elBioB.value = state.xBioB;
+          state.xBioB = bestBio(state.xSpB) || state.xBioB;
+          fillSel("x-bio-b", biosFor(state.xSpB), state.xBioB);
         }
         onChange();
       });
       elB.addEventListener("change", function (e) {
         state.xSpB = e.target.value; state.xBioB = bestBio(state.xSpB) || state.xBioB;
-        elBioB.value = state.xBioB;
+        fillSel("x-bio-b", biosFor(state.xSpB), state.xBioB);
         if (String(state.xSpA) === String(state.xSpB)) {
           state.xSpA = otherThan(state.xSpB); elA.value = state.xSpA;
-          state.xBioA = bestBio(state.xSpA) || state.xBioA; elBioA.value = state.xBioA;
+          state.xBioA = bestBio(state.xSpA) || state.xBioA;
+          fillSel("x-bio-a", biosFor(state.xSpA), state.xBioA);
         }
         onChange();
       });
