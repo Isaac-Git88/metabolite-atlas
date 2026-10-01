@@ -1,5 +1,5 @@
 """
-Step 5 -- build the standalone web explorer.
+Step 3 -- build the standalone web explorer.
 
 Reads the database, serialises it to JSON, and splices it into
 explorer/template.html to produce explorer/index.html: a single self-contained
@@ -13,7 +13,7 @@ Input:  data/metabolite_atlas.db, explorer/template.html
 Output: explorer/index.html
 
 Usage:
-    python pipeline/5_build_explorer.py
+    python pipeline/3_build_explorer.py
 """
 
 import json
@@ -108,7 +108,7 @@ def export_data(conn):
 def main():
     if not DB_PATH.exists():
         raise FileNotFoundError(
-            "Couldn't find %s. Run 4_build_database.py first." % DB_PATH)
+            "Couldn't find %s. Run 2_build_database.py first." % DB_PATH)
 
     print("Reading %s ..." % DB_PATH)
     conn = sqlite3.connect(DB_PATH)

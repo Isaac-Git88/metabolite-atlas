@@ -1,5 +1,5 @@
 """
-Step 3 -- turn HMDB's free-text concentrations into numbers, and classify units.
+Step 1 -- turn HMDB's free-text concentrations into numbers, and classify units.
 
 HMDB writes concentrations as prose ("7.7 +/- 1.9", "37 (10 - 76)", "<0.5"), in
 at least seven shapes. This parses them into mean / SD / min / max and records
@@ -16,17 +16,17 @@ Classification is rule-based rather than a list of the units HMDB happens to
 use, so YMDB, BMDB and ECMDB units are classified on load, and anything
 unrecognised defaults to NOT comparable.
 
-Input:  data/hmdb_normal_concentrations_clean.csv        (--source HMDB, the default)
-        data/ymdb/ymdb_concentrations_clean.csv         (--source YMDB)
-Output: data/<source>_concentrations_parsed.csv
+Input:  data/<source>/<source>_..._clean.csv   (written by each source's prepare script;
+                                                 HMDB's is data/hmdb/hmdb_normal_concentrations_clean.csv)
+Output: data/parsed/<source>_concentrations_parsed.csv
 
 Usage:
-    python pipeline/3_parse_concentrations.py
-    python pipeline/3_parse_concentrations.py --source YMDB
-    python pipeline/3_parse_concentrations.py --report   # coverage, no output file
+    python pipeline/1_parse_concentrations.py
+    python pipeline/1_parse_concentrations.py --source YMDB
+    python pipeline/1_parse_concentrations.py --report   # coverage, no output file
 
 Columns the source CSV carries beyond the ones parsed here -- native_id and
-inchikey -- are passed through untouched, because step 4 needs them to decide
+inchikey -- are passed through untouched, because step 2 needs them to decide
 which rows describe the same metabolite in different species.
 """
 
@@ -43,16 +43,17 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 DATA = ROOT / "data"
+PARSED = DATA / "parsed"   # one parsed CSV per source, read by step 2
 EXPLORER = ROOT / "explorer"
 
-# Per-source input and output. Each source keeps its own parsed CSV, and step 4
+# Per-source input and output. Each source keeps its own parsed CSV, and step 2
 # loads whichever ones exist, so adding a database never rewrites another's data.
 SOURCE_FILES = {
-    "HMDB":  (DATA / "hmdb_normal_concentrations_clean.csv", DATA / "hmdb_concentrations_parsed.csv"),
-    "YMDB":  (DATA / "ymdb" / "ymdb_concentrations_clean.csv", DATA / "ymdb_concentrations_parsed.csv"),
-    "BMDB":  (DATA / "bmdb" / "bmdb_concentrations_clean.csv", DATA / "bmdb_concentrations_parsed.csv"),
-    "ECMDB": (DATA / "ecmdb" / "ecmdb_concentrations_clean.csv", DATA / "ecmdb_concentrations_parsed.csv"),
-    "MWB":   (DATA / "mwb" / "mwb_concentrations_clean.csv", DATA / "mwb_concentrations_parsed.csv"),
+    "HMDB":  (DATA / "hmdb" / "hmdb_normal_concentrations_clean.csv", PARSED / "hmdb_concentrations_parsed.csv"),
+    "YMDB":  (DATA / "ymdb" / "ymdb_concentrations_clean.csv", PARSED / "ymdb_concentrations_parsed.csv"),
+    "BMDB":  (DATA / "bmdb" / "bmdb_concentrations_clean.csv", PARSED / "bmdb_concentrations_parsed.csv"),
+    "ECMDB": (DATA / "ecmdb" / "ecmdb_concentrations_clean.csv", PARSED / "ecmdb_concentrations_parsed.csv"),
+    "MWB":   (DATA / "mwb" / "mwb_concentrations_clean.csv", PARSED / "mwb_concentrations_parsed.csv"),
 }
 
 # ---------------------------------------------------------------------------
@@ -394,8 +395,8 @@ def main():
 
     if not input_file.exists():
         raise FileNotFoundError(
-            "Couldn't find %s. For HMDB, run 2_remove_empty_concentrations.py "
-            "first; for YMDB, run pipeline/ymdb/prepare_ymdb.py." % input_file
+            "Couldn't find %s. Run that source's prepare script first, "
+            "e.g. pipeline/ymdb/prepare_ymdb.py (HMDB's clean CSV is committed)." % input_file
         )
 
     patterns = Counter()
@@ -466,6 +467,7 @@ def main():
         print("\n--report given: no file written.")
         return
 
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     with open(output_file, "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=OUTPUT_FIELDS, extrasaction="ignore")
         w.writeheader()

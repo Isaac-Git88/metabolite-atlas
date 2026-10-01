@@ -2,7 +2,7 @@
 prepare_mwb.py
 Step 4 of the Metabolomics Workbench (MWB) source: turn the control groups chosen
 in data/mwb/mwb_control_review.csv into the clean-CSV shape the shared parser
-reads, so MWB joins the atlas through pipeline steps 3-5 like every other source.
+reads, so MWB joins the atlas through the shared pipeline steps 1-3 like every other source.
 
 Two steps:
   1. names - give every metabolite name in the control analyses a structure
@@ -15,13 +15,13 @@ Usage:
     python pipeline/mwb/prepare_mwb.py names            # uses the RefMet web service (cached)
     python pipeline/mwb/prepare_mwb.py names --offline  # local matching only
     python pipeline/mwb/prepare_mwb.py build
-    python pipeline/3_parse_concentrations.py --source MWB
-    python pipeline/4_build_database.py
-    python pipeline/5_build_explorer.py
+    python pipeline/1_parse_concentrations.py --source MWB
+    python pipeline/2_build_database.py
+    python pipeline/3_build_explorer.py
 
 How names get a structure, in order:
   1. the study's own InChIKey column, where it gave one (about 1% of rows);
-  2. the study's own HMDB ID column -> data/hmdb_inchikey_lookup.csv;
+  2. the study's own HMDB ID column -> data/hmdb/hmdb_inchikey_lookup.csv;
   3. the cleaned name matches an HMDB metabolite name exactly (case-insensitive);
   4. RefMet, the Metabolomics Workbench's own name standard: the name is
      matched to a RefMet standard name, which carries a formula and, through
@@ -77,8 +77,8 @@ REVIEW = os.path.join(MWB, "mwb_control_review.csv")
 NAME_MAP = os.path.join(MWB, "mwb_name_map.csv")
 CACHE = os.path.join(MWB, "refmet_cache.json")
 OUT = os.path.join(MWB, "mwb_concentrations_clean.csv")
-HMDB_LOOKUP = os.path.join(DATA, "hmdb_inchikey_lookup.csv")
-HMDB_PARSED = os.path.join(DATA, "hmdb_concentrations_parsed.csv")
+HMDB_LOOKUP = os.path.join(DATA, "hmdb", "hmdb_inchikey_lookup.csv")
+HMDB_PARSED = os.path.join(DATA, "parsed", "hmdb_concentrations_parsed.csv")
 CHECK = os.path.join(MWB, "mwb_study_check.csv")
 VALUE_CHECK = os.path.join(MWB, "mwb_value_check.csv")
 CHECK_MIN_SHARED, CHECK_MAX_LOG10 = 10, 1.5
@@ -371,7 +371,7 @@ def unit_check(rows):
                 vals[(ik, r["biospecimen"])].append(float(r["value_representative"]))
         ref = {k: sorted(v)[len(v) // 2] for k, v in vals.items() if sorted(v)[len(v) // 2] > 0}
     else:
-        print("HMDB comparison skipped: run 3_parse_concentrations.py for HMDB first")
+        print("HMDB comparison skipped: run 1_parse_concentrations.py for HMDB first")
 
     per = defaultdict(list)
     for r in rows:
@@ -535,7 +535,7 @@ def build_step():
     for k, v in sorted(stats.items()):
         print(f"  {k}: {v:,}")
     print(f"\nWrote {os.path.relpath(OUT, ROOT)}")
-    print("Next: python pipeline/3_parse_concentrations.py --source MWB")
+    print("Next: python pipeline/1_parse_concentrations.py --source MWB")
 
 
 if __name__ == "__main__":

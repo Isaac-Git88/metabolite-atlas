@@ -25,9 +25,9 @@ No ID guessing is needed here: `ecmdb.json` lists every compound.
 pip install requests
 
 python pipeline/ecmdb/prepare_ecmdb.py          # scraped CSV -> the shared clean format
-python pipeline/3_parse_concentrations.py --source ECMDB
-python pipeline/4_build_database.py
-python pipeline/5_build_explorer.py
+python pipeline/1_parse_concentrations.py --source ECMDB
+python pipeline/2_build_database.py
+python pipeline/3_build_explorer.py
 ```
 
 To re-scrape (the saved pages are gitignored):
@@ -61,7 +61,7 @@ recipe stays in `ecmdb_concentrations_all.csv`.
 ## Identity
 
 Every one of the 891 metabolites has an InChIKey, but only 460 measurements carry an
-HMDB cross-reference, so the structure-based identity in `4_build_database.py` is what
+HMDB cross-reference, so the structure-based identity in `2_build_database.py` is what
 lets this source load at all. Overlap with the rest of the atlas: 140 metabolites are
 shared with human, 73 with yeast, and 70 appear in all three species.
 
