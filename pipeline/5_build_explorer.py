@@ -87,7 +87,13 @@ def export_data(conn):
                 for r in conn.execute(
                     "SELECT unit, unit_class, reason, n FROM v_excluded ORDER BY n DESC")]
 
+    # Which databases the measurements come from, largest first, so the page can
+    # name its sources from the data rather than from hard-coded text.
+    sources = [[r["source_db"], r["n"]] for r in conn.execute(
+        "SELECT source_db, COUNT(*) AS n FROM measurements GROUP BY source_db ORDER BY n DESC")]
+
     return {
+        "sources": sources,
         "species": species,
         "metabolites": metabolites,
         "blocks": blocks,

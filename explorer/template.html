@@ -276,9 +276,10 @@
   <p class="eyebrow">metabolite-atlas &middot; v2</p>
   <h1>Normal metabolite concentration ranges</h1>
   <p class="lede">
-    Reference ranges mined from the Human Metabolome Database. Concentrations reported
-    by HMDB as free text are parsed into numbers, then summarised per metabolite and
-    biospecimen so that normal ranges can be compared directly.
+    Reference ranges mined from <span id="lede-sources">public metabolomics databases</span>.
+    Concentrations reported as free text are parsed into numbers, metabolites are matched
+    across species by chemical structure (InChIKey), and values are summarised per species,
+    metabolite and biospecimen so that normal ranges can be compared directly.
   </p>
 
   <div class="kpis" id="kpis"></div>
@@ -302,8 +303,8 @@
         <tbody id="excluded-body"></tbody>
       </table>
       <div class="note">
-        <strong>Why:</strong> creatinine-normalised and fecal-mass measurements answer a
-        different question from volumetric ones, so placing them on the same axis would
+        <strong>Why:</strong> creatinine-normalised measurements, and amounts per gram of
+        feces or tissue, answer a different question from volumetric ones, so placing them on the same axis would
         misstate the comparison. They remain in the database and stay searchable under
         <em>All measurements</em>.
       </div>
@@ -313,7 +314,7 @@
   <div class="filters" role="group" aria-label="Filters applied to every view below">
     <div class="search-wrap">
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"></circle><line x1="10.3" y1="10.3" x2="14" y2="14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></line></svg>
-      <input type="text" id="q" placeholder="Search metabolite name or HMDB ID&hellip;" autocomplete="off" aria-label="Search metabolites">
+      <input type="text" id="q" placeholder="Search metabolite name or database ID&hellip;" autocomplete="off" aria-label="Search metabolites">
     </div>
     <select id="f-species" class="sp-only" aria-label="Species"><option value="">All species</option></select>
     <select id="f-bio" aria-label="Biospecimen"><option value="">All biospecimens</option></select>
@@ -584,10 +585,11 @@
   </section>
 
   <footer>
-    Built by <code>build_explorer_v2.py</code> from <code>metabolite_atlas_v2.db</code> &middot;
+    Built by <code>pipeline/5_build_explorer.py</code> from <code>metabolite_atlas.db</code> &middot;
     <span id="foot-count"></span> measurements loaded in-browser, nothing sent over the network.<br>
+    Measurements by source: <span id="foot-sources"></span>.<br>
     Summary statistics use one representative value per measurement (the reported mean, or the
-    midpoint of a reported range), unweighted by study sample size, which HMDB does not record.
+    midpoint of a reported range), unweighted by study sample size, which most sources do not record.
     Censored values (&ldquo;&lt;0.5&rdquo;) are listed but excluded from the statistics.
   </footer>
 </main>
@@ -602,7 +604,26 @@
   var DATA = JSON.parse(document.getElementById("atlas-data").textContent);
   var METS = DATA.metabolites, BIOS = DATA.biospecimens, UNITS = DATA.units,
       REFS = DATA.references, MEAS = DATA.measurements, EXCL = DATA.excluded,
-      SPECIES = DATA.species, BLOCKS = DATA.blocks || {};
+      SPECIES = DATA.species, BLOCKS = DATA.blocks || {}, SOURCES = DATA.sources || [];
+
+  // Display names for the source databases. A source missing here is shown by
+  // its code, so a new database still appears before it is named.
+  var SOURCE_NAMES = {
+    HMDB:  "Human Metabolome Database",
+    BMDB:  "Bovine Metabolome Database",
+    YMDB:  "Yeast Metabolome Database",
+    ECMDB: "E. coli Metabolome Database",
+    MWB:   "Metabolomics Workbench",
+    MTBLS: "MetaboLights"
+  };
+  function sourceName(code) { return SOURCE_NAMES[code] || code; }
+  function sourceList() {
+    var items = SOURCES.map(function (s) {
+      return esc(SOURCE_NAMES[s[0]] ? "the " + SOURCE_NAMES[s[0]] + " (" + s[0] + ")" : s[0]);
+    });
+    if (items.length < 2) return items.join("");
+    return items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
+  }
 
   // With one organism loaded the species controls and column are hidden, so the
   // page looks exactly as it did before. They appear on their own once a second
@@ -747,6 +768,12 @@
       return '<div class="stat"><div class="n">' + t[0] + '</div><div class="label">' + t[1] + "</div></div>";
     }).join("");
     document.getElementById("foot-count").textContent = MEAS.length.toLocaleString();
+    if (SOURCES.length) {
+      document.getElementById("lede-sources").innerHTML = sourceList();
+      document.getElementById("foot-sources").innerHTML = SOURCES.map(function (s) {
+        return esc(sourceName(s[0])) + " (" + s[1].toLocaleString() + ")";
+      }).join(" &middot; ");
+    }
   }
 
   function renderBioChart() {
@@ -1094,7 +1121,8 @@
     svg.appendChild(txt("x-title", 0, 22, ctx.title));
     svg.appendChild(txt("x-sub", 0, 41, ctx.sub));
     svg.appendChild(txt("x-foot", 0, total - 8,
-      "metabolite-atlas · source: Human Metabolome Database · comparable (volumetric) measurements only"));
+      "metabolite-atlas · sources: " + (SOURCES.map(function (s) { return s[0]; }).join(", ") || "\u2013") +
+      " · comparable (volumetric) measurements only"));
 
     svg.setAttribute("xmlns", SVG_NS);
     svg.setAttribute("width", String(w));
