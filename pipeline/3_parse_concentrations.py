@@ -52,6 +52,7 @@ SOURCE_FILES = {
     "YMDB":  (DATA / "ymdb" / "ymdb_concentrations_clean.csv", DATA / "ymdb_concentrations_parsed.csv"),
     "BMDB":  (DATA / "bmdb" / "bmdb_concentrations_clean.csv", DATA / "bmdb_concentrations_parsed.csv"),
     "ECMDB": (DATA / "ecmdb" / "ecmdb_concentrations_clean.csv", DATA / "ecmdb_concentrations_parsed.csv"),
+    "MWB":   (DATA / "mwb" / "mwb_concentrations_clean.csv", DATA / "mwb_concentrations_parsed.csv"),
 }
 
 # ---------------------------------------------------------------------------
@@ -75,6 +76,9 @@ SOURCES = {
     "YMDB":  ("Saccharomyces cerevisiae", "Yeast",   4932),
     "BMDB":  ("Bos taurus",               "Cow",     9913),
     "ECMDB": ("Escherichia coli",         "E. coli",  562),
+    # Metabolomics Workbench holds many organisms: species comes from each row
+    # (written by pipeline/mwb/prepare_mwb.py from the study's own metadata).
+    "MWB":   (None,                       "per study", 0),
 }
 DEFAULT_SOURCE = "HMDB"
 
@@ -381,8 +385,11 @@ def main():
     output_file = Path(args.output) if args.output else default_out
 
     species_sci, species_common, taxon_id = SOURCES[args.source]
-    print("Source: %s  ->  %s (%s), NCBI taxon %d" %
-          (args.source, species_common, species_sci, taxon_id))
+    if species_sci:
+        print("Source: %s  ->  %s (%s), NCBI taxon %d" %
+              (args.source, species_common, species_sci, taxon_id))
+    else:
+        print("Source: %s  ->  species taken from each row" % args.source)
     print()
 
     if not input_file.exists():
@@ -422,9 +429,10 @@ def main():
             out.setdefault("inchikey", "")
             out.update(parsed)
             out["source_db"] = args.source
-            out["species_scientific"] = species_sci
-            out["species_common"] = species_common
-            out["ncbi_taxon_id"] = taxon_id
+            if species_sci:   # single-organism source; otherwise keep the row's own
+                out["species_scientific"] = species_sci
+                out["species_common"] = species_common
+                out["ncbi_taxon_id"] = taxon_id
             out["unit_std"] = unit_std
             out["unit_class"] = unit_class
             out["is_comparable"] = is_comp

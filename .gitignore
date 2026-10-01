@@ -32,3 +32,4 @@ _to_delete/
 data/mwb/mwtab/
 data/mwb/status.jsonl
 data/mwb/*.json
+data/mwb_concentrations_parsed.csv

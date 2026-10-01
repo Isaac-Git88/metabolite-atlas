@@ -88,3 +88,35 @@ reason in `notes`. The review also promoted 17 groups the rules had missed (e.g.
 82 excluded. Excluded on purpose: tissue and peritoneal samples, pregnancy, acute exercise or fed states,
 single-group cohorts with unknown health status, and pooled reference material (NIST SRM 1950, CHEAR) pending
 a team decision. The file as it was before the review is kept as `mwb_control_review.before_review.csv`.
+
+## Step 4: extract the control data into the atlas
+
+```
+python pipeline/mwb/prepare_mwb.py names     # match names to structures (asks RefMet; cached, resumable)
+python pipeline/mwb/prepare_mwb.py build     # control samples -> umol/L -> one value per study
+python pipeline/3_parse_concentrations.py --source MWB
+python pipeline/4_build_database.py
+python pipeline/5_build_explorer.py
+```
+
+**Names → structure.** Only ~1% of MWB metabolite rows carry an InChIKey and ~9% an HMDB ID; the rest are
+free-text names (e.g. `1MH_1-Methylhistidine`). Each name is matched, in order, by: the study's own InChIKey,
+its HMDB ID (→ `hmdb_inchikey_lookup.csv`), an exact match of the cleaned name to an HMDB name, then RefMet
+(the repository's name standard → formula and, via PubChem, an InChIKey). Unmatched names are left out, so every
+MWB row merges with HMDB, YMDB and ECMDB on an exact InChIKey, the same rule as the other sources.
+The result for every name is in `data/mwb/mwb_name_map.csv`.
+
+**Units.** Everything is converted to µmol/L. Molar units are a fixed scaling; mass units (ng/mL, mg/dL) are
+divided by the molar mass computed from the formula. Analyses that mix units in one column, or report logs,
+are left out.
+
+**One value per study.** All control samples of a study are pooled and summarised as `mean +/- SD (min - max)`,
+which the shared parser reads like an HMDB entry. If several analyses of a study report the same metabolite,
+the one with the most samples is used, so each study counts once per metabolite and biospecimen.
+
+**Unit check.** Each human study is compared with HMDB on the metabolites both report. A study with ≥10 shared
+metabolites whose typical value is >30-fold from HMDB is left out as a likely unit-label error (ST001490 labels
+µM values "mM": 549-fold high across 181 metabolites). All results: `data/mwb/mwb_study_check.csv`.
+
+First build with local name matching only (before RefMet): 1,151 values from 56 studies, 449 metabolites;
+human, mouse, rat, cow and rainbow trout. Ranges supported by 3+ studies rose from 1,529 to 1,641.

@@ -1,0 +1,58 @@
+study_id,shared_with_hmdb,median_log10_ratio,typical_fold_vs_hmdb,result
+ST000091,10,-0.10,0.801,ok
+ST000136,1,-0.91,0.123,too few shared to check
+ST000161,2,-0.64,0.23,too few shared to check
+ST000188,0,,,too few shared to check
+ST000283,2,-0.75,0.18,too few shared to check
+ST000435,22,0.02,1.04,ok
+ST000443,1,0.06,1.15,too few shared to check
+ST000514,0,,,too few shared to check
+ST000588,32,0.12,1.32,ok
+ST000631,0,,,too few shared to check
+ST000632,0,,,too few shared to check
+ST000633,0,,,too few shared to check
+ST000762,4,-0.87,0.136,too few shared to check
+ST000802,39,0.58,3.84,ok
+ST000829,0,,,too few shared to check
+ST000830,0,,,too few shared to check
+ST000901,0,,,too few shared to check
+ST000916,37,-0.16,0.69,ok
+ST000917,0,,,too few shared to check
+ST000947,1,-0.04,0.918,too few shared to check
+ST000995,25,-0.11,0.782,ok
+ST000996,1,-1.59,0.0254,too few shared to check
+ST000998,9,-0.20,0.634,too few shared to check
+ST001011,1,-1.59,0.0259,too few shared to check
+ST001012,25,-0.11,0.774,ok
+ST001013,2,0.37,2.37,too few shared to check
+ST001097,25,-0.33,0.465,ok
+ST001280,0,,,too few shared to check
+ST001295,22,-0.17,0.68,ok
+ST001349,0,,,too few shared to check
+ST001490,181,2.74,549,left out: likely unit-label error
+ST001607,0,,,too few shared to check
+ST002001,49,-0.25,0.563,ok
+ST002029,10,0.12,1.31,ok
+ST002091,150,-0.20,0.637,ok
+ST002137,0,,,too few shared to check
+ST002265,5,0.03,1.06,too few shared to check
+ST002269,49,-0.06,0.87,ok
+ST002278,0,,,too few shared to check
+ST002279,0,,,too few shared to check
+ST002491,0,,,too few shared to check
+ST002550,15,-0.09,0.816,ok
+ST002579,0,,,too few shared to check
+ST002581,0,,,too few shared to check
+ST002583,0,,,too few shared to check
+ST003105,0,,,too few shared to check
+ST003506,48,0.02,1.06,ok
+ST003575,0,,,too few shared to check
+ST003829,1,-1.18,0.0659,too few shared to check
+ST004073,49,-0.16,0.696,ok
+ST004177,10,-0.58,0.262,ok
+ST004184,3,-0.14,0.726,too few shared to check
+ST004212,12,-0.09,0.816,ok
+ST004901,58,-0.81,0.154,ok
+ST004922,3,0.06,1.15,too few shared to check
+ST004940,10,0.09,1.23,ok
+ST005031,5,0.12,1.33,too few shared to check
