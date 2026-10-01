@@ -118,5 +118,13 @@ the one with the most samples is used, so each study counts once per metabolite 
 metabolites whose typical value is >30-fold from HMDB is left out as a likely unit-label error (ST001490 labels
 µM values "mM": 549-fold high across 181 metabolites). All results: `data/mwb/mwb_study_check.csv`.
 
-First build with local name matching only (before RefMet): 1,151 values from 56 studies, 449 metabolites;
-human, mouse, rat, cow and rainbow trout. Ranges supported by 3+ studies rose from 1,529 to 1,641.
+**Checks after the full run (October 2026).** With RefMet name matching: 85 studies before checks.
+Left out after checks: 8 studies, each with its reason in `data/mwb/mwb_study_check.csv` (6 found by
+inspecting each study's largest values and listed in `EXCLUDE_STUDIES` in the script, 2 by the automatic
+comparison with HMDB), and 39 single values more than 1000-fold from HMDB or above 200 mmol/L
+(`data/mwb/mwb_value_check.csv`). The value check is cautious, not perfect: in a few cases HMDB is the outlier
+(e.g. HMDB lists thyroxine at 0.00002 umol/L; MWB's ~0.1 umol/L is the physiological value), so some correct
+values are lost. Plasma ATP/ADP (nanomolar) is also dropped because HMDB's "Blood" values are whole blood.
+
+Result: 3,108 values from 79 studies, 927 metabolites; human, mouse, sika deer, cow, rat, rainbow trout,
+dog and rhesus macaque; blood 2,714, urine 313, saliva 63, CSF 18.

@@ -1,58 +1,88 @@
-study_id,shared_with_hmdb,median_log10_ratio,typical_fold_vs_hmdb,result
-ST000091,10,-0.10,0.801,ok
-ST000136,1,-0.91,0.123,too few shared to check
-ST000161,2,-0.64,0.23,too few shared to check
-ST000188,0,,,too few shared to check
-ST000283,2,-0.75,0.18,too few shared to check
-ST000435,22,0.02,1.04,ok
-ST000443,1,0.06,1.15,too few shared to check
-ST000514,0,,,too few shared to check
-ST000588,32,0.12,1.32,ok
-ST000631,0,,,too few shared to check
-ST000632,0,,,too few shared to check
-ST000633,0,,,too few shared to check
-ST000762,4,-0.87,0.136,too few shared to check
-ST000802,39,0.58,3.84,ok
-ST000829,0,,,too few shared to check
-ST000830,0,,,too few shared to check
-ST000901,0,,,too few shared to check
-ST000916,37,-0.16,0.69,ok
-ST000917,0,,,too few shared to check
-ST000947,1,-0.04,0.918,too few shared to check
-ST000995,25,-0.11,0.782,ok
-ST000996,1,-1.59,0.0254,too few shared to check
-ST000998,9,-0.20,0.634,too few shared to check
-ST001011,1,-1.59,0.0259,too few shared to check
-ST001012,25,-0.11,0.774,ok
-ST001013,2,0.37,2.37,too few shared to check
-ST001097,25,-0.33,0.465,ok
-ST001280,0,,,too few shared to check
-ST001295,22,-0.17,0.68,ok
-ST001349,0,,,too few shared to check
-ST001490,181,2.74,549,left out: likely unit-label error
-ST001607,0,,,too few shared to check
-ST002001,49,-0.25,0.563,ok
-ST002029,10,0.12,1.31,ok
-ST002091,150,-0.20,0.637,ok
-ST002137,0,,,too few shared to check
-ST002265,5,0.03,1.06,too few shared to check
-ST002269,49,-0.06,0.87,ok
-ST002278,0,,,too few shared to check
-ST002279,0,,,too few shared to check
-ST002491,0,,,too few shared to check
-ST002550,15,-0.09,0.816,ok
-ST002579,0,,,too few shared to check
-ST002581,0,,,too few shared to check
-ST002583,0,,,too few shared to check
-ST003105,0,,,too few shared to check
-ST003506,48,0.02,1.06,ok
-ST003575,0,,,too few shared to check
-ST003829,1,-1.18,0.0659,too few shared to check
-ST004073,49,-0.16,0.696,ok
-ST004177,10,-0.58,0.262,ok
-ST004184,3,-0.14,0.726,too few shared to check
-ST004212,12,-0.09,0.816,ok
-ST004901,58,-0.81,0.154,ok
-ST004922,3,0.06,1.15,too few shared to check
-ST004940,10,0.09,1.23,ok
-ST005031,5,0.12,1.33,too few shared to check
+study_id,species,shared_with_hmdb,median_log10_ratio,typical_fold_vs_hmdb,result
+ST000091,Human,35,-0.14,0.729,ok
+ST000136,Human,9,-1.83,0.0147,too few shared to check
+ST000161,Human,4,-1.95,0.0112,too few shared to check
+ST000188,Mouse,4,-0.82,0.152,too few shared to check
+ST000283,Human,4,-2.43,0.00368,too few shared to check
+ST000433,Human,12,-0.43,0.374,ok
+ST000434,Human,9,-0.19,0.652,too few shared to check
+ST000435,Human,33,-0.01,0.968,ok
+ST000443,Human,8,0.06,1.15,too few shared to check
+ST000514,Mouse,32,-0.02,0.958,ok
+ST000588,Human,42,0.00,1,ok
+ST000600,Rat,17,0.17,1.47,ok
+ST000631,Rat,7,1.22,16.8,too few shared to check
+ST000632,Rat,37,-0.02,0.948,ok
+ST000633,Rat,4,2.97,926,left out: neuromodulators in rat plasma ~1000x above physiological (dopamine 7 umol/L) - unit label likely wrong
+ST000762,Human,6,-0.93,0.117,too few shared to check
+ST000802,Human,39,0.58,3.84,ok
+ST000829,Mouse,20,-0.40,0.394,ok
+ST000830,Mouse,13,-0.64,0.229,ok
+ST000901,Mouse,33,0.98,9.47,ok
+ST000916,Human,90,-0.01,0.971,ok
+ST000917,Human,0,,,too few shared to check
+ST000947,Human,2,-0.04,0.918,too few shared to check
+ST000995,Human,36,-0.11,0.768,ok
+ST000996,Human,11,-0.12,0.762,ok
+ST000997,Human,8,-0.35,0.444,too few shared to check
+ST000998,Human,13,0.05,1.11,ok
+ST001011,Human,11,-0.19,0.639,ok
+ST001012,Human,35,-0.12,0.766,ok
+ST001013,Human,10,-0.06,0.871,ok
+ST001014,Human,3,-0.07,0.855,too few shared to check
+ST001015,Human,8,-0.15,0.704,too few shared to check
+ST001097,Human,35,-0.31,0.49,ok
+ST001159,Rhesus macaque,0,,,too few shared to check
+ST001160,Rhesus macaque,3,-2.22,0.006,left out: values ~100x below physiological (taurine 0.6 umol/L) - unit label likely wrong
+ST001280,Mouse,1,-3.01,0.000983,too few shared to check
+ST001295,Human,30,-0.16,0.687,ok
+ST001349,Cow,130,-0.17,0.68,ok
+ST001361,Mouse,8,0.59,3.88,too few shared to check
+ST001490,Human,181,2.74,549,left out: likely unit-label error
+ST001607,Mouse,4,-0.18,0.661,too few shared to check
+ST001742,Dog,21,0.15,1.42,ok
+ST001743,Mouse,14,-1.46,0.035,ok
+ST002001,Human,49,-0.25,0.563,ok
+ST002029,Human,14,0.15,1.41,ok
+ST002086,Human,1,1.81,64,"left out: NMR lipoprotein panel (lipoprotein fractions, not single metabolites); 'TG' mis-matched to thioguanine"
+ST002091,Human,150,-0.20,0.637,ok
+ST002137,Mouse,29,-1.05,0.0896,ok
+ST002196,Human,50,-2.31,0.00492,left out: likely unit-label error
+ST002265,Human,16,0.12,1.32,ok
+ST002269,Human,65,-0.06,0.87,ok
+ST002278,Rainbow trout,27,-0.07,0.855,ok
+ST002279,Rainbow trout,35,0.23,1.7,ok
+ST002345,Mouse,10,1.19,15.4,ok
+ST002491,Mouse,4,1.00,10.1,too few shared to check
+ST002550,Human,15,-0.09,0.816,ok
+ST002579,Rat,34,-0.01,0.97,ok
+ST002580,Rat,2,-1.84,0.0144,too few shared to check
+ST002581,Rat,3,0.04,1.1,too few shared to check
+ST002582,Rat,15,0.87,7.34,ok
+ST002583,Rat,10,0.10,1.26,ok
+ST003105,Mouse,49,3.91,8.06e+03,left out: labelled mM but values ~1000x above physiological - unit label likely wrong
+ST003255,Human,84,-0.03,0.925,ok
+ST003390,Human,166,-0.16,0.695,ok
+ST003506,Human,48,0.02,1.06,ok
+ST003524,Human,24,0.58,3.83,ok
+ST003575,Mouse,21,-0.77,0.169,ok
+ST003739,Mouse,13,0.36,2.3,ok
+ST003746,Mouse,12,4.81,6.5e+04,"left out: steroid hormones ~10,000x above physiological (corticosterone 24 mmol/L) - unit label likely wrong"
+ST003829,Human,1,-1.18,0.0659,too few shared to check
+ST003984,Human,44,-0.09,0.816,ok
+ST003989,Human,20,-0.08,0.836,ok
+ST004073,Human,51,-0.15,0.71,ok
+ST004086,Mouse,43,1.22,16.6,ok
+ST004165,Mouse,28,-0.03,0.937,ok
+ST004177,Human,11,-0.96,0.109,ok
+ST004184,Human,4,0.29,1.97,too few shared to check
+ST004187,Human,122,0.06,1.15,ok
+ST004188,Human,1,0.03,1.07,too few shared to check
+ST004212,Human,14,-0.06,0.881,ok
+ST004269,Human,13,-0.20,0.632,ok
+ST004597,Mouse,55,0.16,1.44,ok
+ST004901,Human,58,-0.81,0.154,ok
+ST004922,Human,4,0.06,1.15,too few shared to check
+ST004940,Human,15,-0.13,0.745,ok
+ST004983,Sika deer,176,-0.25,0.561,ok
+ST005031,Human,5,0.12,1.33,"left out: plasma acetate 23 mmol/L, implausible; short-chain fatty acid panel not trusted"

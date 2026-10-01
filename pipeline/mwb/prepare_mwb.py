@@ -49,6 +49,11 @@ report in the same biospecimen. If at least 10 are shared and the study's
 typical value is more than 30-fold away (|median log10 ratio| > 1.5), the
 whole study is left out - not corrected, because the true unit is a guess.
 Every study's result is written to data/mwb/mwb_study_check.csv.
+The same check runs for every species against HMDB's human values (blood
+chemistry rarely differs 30-fold between mammals). Studies found wrong by
+inspection are in EXCLUDE_STUDIES with their reason. Finally, single values
+more than 1000-fold from HMDB, or above 200 mmol/L outside urine, are left out
+and listed in data/mwb/mwb_value_check.csv.
 """
 import argparse
 import csv
@@ -75,7 +80,21 @@ OUT = os.path.join(MWB, "mwb_concentrations_clean.csv")
 HMDB_LOOKUP = os.path.join(DATA, "hmdb_inchikey_lookup.csv")
 HMDB_PARSED = os.path.join(DATA, "hmdb_concentrations_parsed.csv")
 CHECK = os.path.join(MWB, "mwb_study_check.csv")
+VALUE_CHECK = os.path.join(MWB, "mwb_value_check.csv")
 CHECK_MIN_SHARED, CHECK_MAX_LOG10 = 10, 1.5
+VALUE_MAX_LOG10 = 3          # a single value >1000-fold from HMDB is left out
+VALUE_MAX_UMOL = 2e5         # >200 mmol/L is impossible for one metabolite outside urine
+
+# Studies left out after inspection, with the reason. Each was found by the
+# checks below or by looking at the largest values per study.
+EXCLUDE_STUDIES = {
+    "ST000633": "neuromodulators in rat plasma ~1000x above physiological (dopamine 7 umol/L) - unit label likely wrong",
+    "ST001160": "values ~100x below physiological (taurine 0.6 umol/L) - unit label likely wrong",
+    "ST002086": "NMR lipoprotein panel (lipoprotein fractions, not single metabolites); 'TG' mis-matched to thioguanine",
+    "ST003105": "labelled mM but values ~1000x above physiological - unit label likely wrong",
+    "ST003746": "steroid hormones ~10,000x above physiological (corticosterone 24 mmol/L) - unit label likely wrong",
+    "ST005031": "plasma acetate 23 mmol/L, implausible; short-chain fatty acid panel not trusted",
+}
 BASE = "https://www.metabolomicsworkbench.org/rest"
 
 sys.path.insert(0, HERE)
@@ -339,44 +358,68 @@ def names_step(offline, workers):
 
 # ------------------------------------------------------------------ step 2: build
 def unit_check(rows):
-    """Leave out human studies whose values sit far from HMDB (a unit-label error)."""
-    if not os.path.exists(HMDB_PARSED):
-        print("Unit check skipped: run 3_parse_concentrations.py for HMDB first")
-        return rows
-    look = {r["hmdb_id"]: r["inchikey"] for r in csv.DictReader(open(HMDB_LOOKUP, encoding="utf-8"))}
-    ref = defaultdict(list)
-    for r in csv.DictReader(open(HMDB_PARSED, encoding="utf-8")):
-        ik = look.get(r["hmdb_id"])
-        if ik and r["is_comparable"] == "1" and r["value_representative"]:
-            ref[(ik, r["biospecimen"])].append(float(r["value_representative"]))
-    ref = {k: sorted(v)[len(v) // 2] for k, v in ref.items()}
+    """Leave out studies and single values that cannot be right (see the docstring)."""
+    study = lambda r: r["reference_texts"].split()[2]
+    mean = lambda r: float(r["concentration_value_raw"].split()[0])
+    ref = {}
+    if os.path.exists(HMDB_PARSED):
+        look = {r["hmdb_id"]: r["inchikey"] for r in csv.DictReader(open(HMDB_LOOKUP, encoding="utf-8"))}
+        vals = defaultdict(list)
+        for r in csv.DictReader(open(HMDB_PARSED, encoding="utf-8")):
+            ik = look.get(r["hmdb_id"])
+            if ik and r["is_comparable"] == "1" and r["value_representative"]:
+                vals[(ik, r["biospecimen"])].append(float(r["value_representative"]))
+        ref = {k: sorted(v)[len(v) // 2] for k, v in vals.items() if sorted(v)[len(v) // 2] > 0}
+    else:
+        print("HMDB comparison skipped: run 3_parse_concentrations.py for HMDB first")
+
     per = defaultdict(list)
     for r in rows:
         k = (r["inchikey"], r["biospecimen"])
-        if r["species_common"] == "Human" and k in ref and ref[k] > 0:
-            mean = float(r["concentration_value_raw"].split()[0])
-            per[r["reference_texts"].split()[2]].append(math.log10(mean / ref[k]))
-    studies = sorted({r["reference_texts"].split()[2] for r in rows})
-    dropped, report = set(), []
-    for st in studies:
+        if k in ref:
+            per[study(r)].append(math.log10(mean(r) / ref[k]))
+    dropped, report = {}, []
+    for st in sorted({study(r) for r in rows}):
         l = sorted(per.get(st, []))
         med = l[len(l) // 2] if l else None
-        bad = len(l) >= CHECK_MIN_SHARED and abs(med) > CHECK_MAX_LOG10
-        if bad:
-            dropped.add(st)
-        report.append({"study_id": st, "shared_with_hmdb": len(l),
+        if st in EXCLUDE_STUDIES:
+            dropped[st] = "left out: " + EXCLUDE_STUDIES[st]
+        elif len(l) >= CHECK_MIN_SHARED and abs(med) > CHECK_MAX_LOG10:
+            dropped[st] = "left out: likely unit-label error"
+        report.append({"study_id": st, "species": next(r["species_common"] for r in rows if study(r) == st),
+                       "shared_with_hmdb": len(l),
                        "median_log10_ratio": "" if med is None else "%.2f" % med,
                        "typical_fold_vs_hmdb": "" if med is None else "%.3g" % 10 ** med,
-                       "result": "left out: likely unit-label error" if bad
-                                 else ("ok" if len(l) >= CHECK_MIN_SHARED else "too few shared to check")})
+                       "result": dropped.get(st) or ("ok" if len(l) >= CHECK_MIN_SHARED else "too few shared to check")})
     with open(CHECK, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(report[0].keys()))
         w.writeheader()
         w.writerows(report)
-    if dropped:
-        print("Unit check: left out %s (see %s)" % (", ".join(sorted(dropped)), os.path.relpath(CHECK, ROOT)))
-    return [r for r in rows if r["reference_texts"].split()[2] not in dropped]
 
+    kept, bad_values = [], []
+    for r in rows:
+        if study(r) in dropped:
+            continue
+        k, v = (r["inchikey"], r["biospecimen"]), mean(r)
+        why = ""
+        if k in ref and abs(math.log10(v / ref[k])) > VALUE_MAX_LOG10:
+            why = "%.3g-fold from HMDB median (%.4g umol/L)" % (v / ref[k], ref[k])
+        elif r["biospecimen"] != "Urine" and v > VALUE_MAX_UMOL:
+            why = "above 200 mmol/L"
+        if why:
+            bad_values.append({"study_id": study(r), "metabolite_name": r["metabolite_name"],
+                               "species": r["species_common"], "biospecimen": r["biospecimen"],
+                               "mean_umol_per_L": "%.4g" % v, "reason": why})
+        else:
+            kept.append(r)
+    with open(VALUE_CHECK, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=["study_id", "metabolite_name", "species", "biospecimen",
+                                          "mean_umol_per_L", "reason"])
+        w.writeheader()
+        w.writerows(bad_values)
+    print("Checks: %d studies left out (%s); %d single values left out (see %s)"
+          % (len(dropped), ", ".join(sorted(dropped)), len(bad_values), os.path.relpath(VALUE_CHECK, ROOT)))
+    return kept
 
 
 def fmt(x):
