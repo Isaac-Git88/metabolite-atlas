@@ -27,3 +27,8 @@ data/ecmdb/downloads/
 __pycache__/
 notes/
 _to_delete/
+
+# Metabolomics Workbench working files; rebuild with pipeline/mwb/survey_mwb.py fetch
+data/mwb/mwtab/
+data/mwb/status.jsonl
+data/mwb/*.json

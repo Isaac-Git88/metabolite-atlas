@@ -1,0 +1,941 @@
+units,unit_class,n_analyses
+peak area,relative,802
+Peak area,relative,775
+Peak Area,relative,292
+intensity,relative,213
+peak intensity,relative,155
+,missing,141
+uM,volumetric,140
+Peak height,relative,129
+AU,relative,122
+peak area normalized,relative,113
+Intensity,relative,103
+counts,relative,95
+Area,relative,93
+Peak intensity,relative,85
+normalized peak area,relative,84
+Normalized peak area,relative,84
+peak height,relative,81
+Abundance,relative,75
+AUC,relative,73
+m/z,not_a_value,63
+abundance,relative,63
+µM,volumetric,62
+area,relative,61
+Relative abundance,relative,61
+ppm,not_a_value,59
+Counts,relative,56
+ion counts,relative,49
+Peak Intensity,relative,48
+Relative Abundance,relative,47
+nM,volumetric,41
+Peak Height,relative,41
+ng/mL,volumetric,41
+a.u.,relative,39
+mM,volumetric,37
+Counts per second (cps),relative,37
+A.U.,relative,37
+relative intensity,relative,36
+nmol/mg protein,normalised,35
+normalized peak height,relative,35
+ng/ml,volumetric,34
+nmol/g,normalised,34
+Ion counts,relative,33
+Normalized intensity,relative,30
+Abudances,relative,30
+ion count,relative,28
+relative abundance,relative,28
+pmol/mg,normalised,27
+area under the curve,relative,26
+arbitrary unit,relative,26
+Arbitrary Units,relative,25
+nmol/mg,normalised,24
+arbitrary units,relative,24
+peak area top,relative,22
+raw intensity,relative,21
+pmol/µg protein,normalised,20
+Relative peak area,relative,20
+Corrected areas,relative,20
+Relative intensity,relative,19
+Peak values (Log transformed),relative,18
+micromolar,volumetric,18
+Abundances,relative,18
+ng/uL,volumetric,18
+Normalized abundance,relative,17
+pmoles/l,volumetric,17
+m/z ratio,relative,17
+Relative Area,relative,16
+peak counts,relative,16
+Adjusted and normalized peak areas,relative,16
+relative ion counts,relative,16
+nano moles per vial,amount,16
+integrated peak counts,relative,15
+unspecified,missing,15
+Da,not_a_value,15
+MS count,relative,15
+SI,relative,15
+pmol/ml,volumetric,14
+raw area counts,relative,14
+normalized intensity,relative,14
+Concentration (nM),volumetric,13
+Peak areas,relative,13
+raw area counts rescaled to set the median equal to 1,relative,13
+μg/g,normalised,13
+Raw MS Intensities,relative,12
+chromatographic peak area,relative,12
+μM,volumetric,12
+pmol/mg of tissue,normalised,12
+peak areas,relative,12
+log2-transformed normalized relative abundance,relative,12
+Relative Intensity,relative,11
+unitless peak areas,relative,11
+µMol,amount,11
+Normalized to the median value of total lipid signals,relative,11
+nmol,amount,10
+peak heights,relative,10
+Signal Intensity,relative,10
+m/z values,not_a_value,10
+Peak intensity (area),relative,10
+time_m/z,not_a_value,10
+relative units,relative,10
+counts per second (cps),relative,10
+"counts, height",relative,10
+dalton,not_a_value,10
+pmol/mg protein,normalised,9
+pmol/mg sample,normalised,9
+pmol/mg tissue,normalised,9
+pmol/ug protein,normalised,9
+nanograms (absolute),amount,9
+Area under the curve,relative,9
+Peak area normalized,relative,9
+counts per second,relative,9
+Peak Height Intensity,relative,9
+area under curve,relative,9
+nmol/vial,amount,8
+pmol,amount,8
+Integrated peak area,relative,8
+Normalized Peak Area,relative,8
+relativeMedian,relative,8
+Spectral count,relative,8
+normalized peak heights,relative,8
+log transformed data,relative,8
+Peak AUC,relative,8
+Raw Peak Area,relative,8
+Peak Areas,relative,8
+picogram per 2*10^6 cells,normalised,8
+Ion intensity,relative,8
+Area Top (avg intensity of top three points of the peak),relative,8
+absorbance units,relative,8
+nmol/ml,volumetric,7
+picomoles/mg,normalised,7
+Peak,relative,7
+Normalized Abundance,relative,7
+ng/vial,amount,7
+scaled units,relative,7
+MS Counts,relative,7
+relative intensities,relative,7
+AREA,relative,7
+fmol/cell,normalised,7
+normalized relative level,relative,7
+Normalized peak intensity,relative,7
+fmol / cell,normalised,7
+Peak area (arbitrary units),relative,7
+Area under the curve (AUC),relative,7
+Normalized Peak area,relative,6
+normalized ion counts,relative,6
+Concentration pmol/g,normalised,6
+Count,relative,6
+au,relative,6
+normalized peak intensity,relative,6
+raw abundance,relative,6
+Total ion counts,relative,6
+ion intensity,relative,6
+MS count (log2),relative,6
+relative area,relative,6
+pmol/mL,volumetric,6
+pmol/l,volumetric,6
+Log2(Top Peak Area),relative,6
+Rel Abundance,relative,6
+blank-subtracted peak area,relative,6
+normalised ion counts,relative,6
+pmol/million cells,normalised,5
+cps,relative,5
+ug/100 mg,normalised,5
+nmol/mg dry powder,normalised,5
+µM/mg,normalised,5
+-,missing,5
+main area,relative,5
+spectral abundance per cell,relative,5
+Relative content,relative,5
+Normalized amount,relative,5
+nmol per 10e7 cells,normalised,5
+Normalized Peak Area Per RFU,relative,5
+peak_height,relative,5
+counts (area),relative,5
+Intensities,relative,5
+Unitless Abundances,relative,5
+mol% of total lipids,relative,5
+Ion abundance,relative,5
+area integration,relative,5
+integrated peak area,relative,5
+Normalized Intensity,relative,5
+Not applicable,missing,5
+pmol/uL,volumetric,5
+arbitrary units (a.u.),relative,5
+pmoles/ug protein,normalised,5
+nmol/1e6 PBMCs,normalised,5
+Presence(1) or Absence(0),relative,5
+nmol/million cells,normalised,4
+ng/mg,normalised,4
+mmol/L,volumetric,4
+pmol/ ug of protein,normalised,4
+uM/ng protein,normalised,4
+log transform with internal standard normalization,relative,4
+counts norm,relative,4
+total peak intensity per metabolite,relative,4
+normalized abundance,relative,4
+none,missing,4
+µmol/L,volumetric,4
+log10(peak area),relative,4
+feature area,relative,4
+Abundance (Log2),relative,4
+VolNormImp Area counts,relative,4
+Main area,relative,4
+Normalized Peak Area Per L Seawater Filtered,relative,4
+Normalized Peak Area Per L Seawater,relative,4
+abundance & normalized peak area,relative,4
+relative peak area,relative,4
+no applicable unites,missing,4
+ng/g,normalised,4
+Raw area counts,relative,4
+height,relative,4
+AUC/ngDNA,relative,4
+Metabolon original scale,relative,4
+N/A (structure elucidation),missing,4
+nmol/L,volumetric,4
+"Peak area, normalized",relative,4
+mz,not_a_value,4
+"presence (1), absence (0), or background level (NA)",relative,4
+nanomoles,amount,4
+Area integration,relative,4
+normalized ion count/mg protein,relative,4
+pmoles/mg protein,normalised,4
+Peak ion intensity,relative,4
+Peak area (m/z),relative,4
+Fold change over standard,relative,4
+Ion abundance (peak area),relative,4
+normalized peak area per liter seawater filtered,relative,4
+Normalized/scaled raw area counts,relative,4
+PeakArea,relative,4
+Relative area,relative,4
+Batch normalized peak area,relative,4
+normalized AUC,relative,4
+mg/L,volumetric,4
+pmol lipid per mg tissue,normalised,4
+Normalized ion count/mg of protein,relative,4
+normalized imputed data,relative,4
+nmol/mL,volumetric,4
+Relative intensities,relative,4
+log2(area),relative,4
+ng/mg of cells,normalised,4
+nmol / mg DNA,normalised,4
+relativeMedian of peak area,relative,4
+abundances,relative,4
+Normalized counts,relative,4
+µmol/dL plasma,volumetric,4
+normalized (total useful signal) abundances,relative,4
+Peak abundance,relative,4
+batch normalized-imputed peak area,relative,4
+TIC-normalized intensity,relative,4
+median-scaled values (batch normalized total ion counts),relative,4
+Median scaled peak area imputed with lowest value per biochemical,relative,4
+iQC normalized AUC,relative,4
+log2FC(peak area),relative,4
+abundance (normalized to pooled sample),relative,4
+ng/brain,normalised,4
+Peak intensity (arbitrary units),relative,4
+Unspecified,missing,3
+% Area Ratio,relative,3
+pmol/mg dry powder,normalised,3
+ng,amount,3
+mole percent enrichment,relative,3
+Normalized scale,relative,3
+um,volumetric,3
+Ion Intensity,relative,3
+% enrichment: MPE,relative,3
+total ion counts,relative,3
+Arbitrary units,relative,3
+%,relative,3
+Area under curve,relative,3
+micromol metabolite per gram protein,normalised,3
+fold,relative,3
+Area Ratio,relative,3
+N/A,missing,3
+Log10(Peak Area),relative,3
+peak area values,relative,3
+normalized,relative,3
+normalized ion abundance,relative,3
+umol/gDCW and Height ratio/gDCW,relative,3
+Normalized abundances,relative,3
+umol/L,volumetric,3
+Raw ion count (peak area),relative,3
+fmol/μg protein,normalised,3
+mg/g,normalised,3
+arbitrary,relative,3
+relative intensity/µg proteins,relative,3
+scaled imputed,relative,3
+Ranked Peak Height,relative,3
+μg/mL,volumetric,3
+amu,unknown,3
+count per second (cps),relative,3
+CPS,relative,3
+μmol/g,normalised,3
+Absolute Intensity,relative,3
+µg/ml,volumetric,3
+normalized peak areas,relative,3
+Estimated metabolite carbon concentration (nmol C per L),volumetric,3
+micromole/L,volumetric,3
+area analyzed by Compound discoverer (counts x seconds),relative,3
+count,relative,3
+peak intensities,relative,3
+Normalized Area,relative,3
+gauss,unknown,3
+normalized areas,relative,3
+nmol/300 ug protein,normalised,3
+nmol/250 ug protein,normalised,3
+relative abundance/mg tissue,relative,3
+nmol/mg dry wt,normalised,3
+Normalised peak areas,relative,3
+Normalized Peak Area per Liter of Sea Water filtered,relative,3
+femtomole,unknown,3
+"arbitrary units, a.u.",relative,3
+pmol/cortex,amount,3
+Normalised counts,relative,3
+Abundance (Counts),relative,3
+n/a,missing,3
+Peak Area (Ion Counts),relative,3
+Intensity (baseline corrected),relative,3
+Arbitrary Unit,relative,3
+pg/1e6 PBMCs,normalised,3
+nmol/g stool,normalised,3
+Normalized abundance (unitless),relative,3
+ng/million cells,normalised,3
+normalized corrected Peak area,relative,2
+Area %,relative,2
+normalized Peak area,relative,2
+pg/ml,volumetric,2
+Area normalized to protein,relative,2
+Avg Intensity,relative,2
+Area normalized,relative,2
+pg/mg tissue,normalised,2
+normalized corrected peak area,relative,2
+nmol/mg sample,normalised,2
+pmol/µg tissue protein,normalised,2
+µmol/g,normalised,2
+Log transformed peak values,relative,2
+Peak values (scaled),relative,2
+m/z value,not_a_value,2
+mmol/l,volumetric,2
+% enrichment,relative,2
+nmol/mg tissue,normalised,2
+ug/mg tissue,normalised,2
+Normalised Intensity,relative,2
+Peak area (Log2 transformed),relative,2
+urine uM and Tissue nnol/vial,normalised,2
+NA,missing,2
+counts/mg,relative,2
+ISTD response ratio,relative,2
+% total,relative,2
+unit = nmol/vial,amount,2
+cholesterol (ug/mg tissue),normalised,2
+units = ng/vial,amount,2
+% composition by nmol,relative,2
+abundance of specific m/z (amu),relative,2
+MPE,unknown,2
+Concentration (pmol/gram),normalised,2
+Enrichment,unknown,2
+"Exact mass, m/z",not_a_value,2
+"mg/kg (relative quantification, NOT ABSOLUTE)",relative,2
+Spectral Counts,relative,2
+Intensity (Log2 scale),relative,2
+signal intensity normalized,relative,2
+umol,amount,2
+micromoles/L,volumetric,2
+normalized_intensity,relative,2
+Concentration (pmol/1000000 cells),normalised,2
+Concentration (nmol/g tissue),normalised,2
+m/z_retention time,not_a_value,2
+ug/ml,volumetric,2
+Peaks area,relative,2
+Relative intensity after normalization,relative,2
+Peak area normalized to internal standard,relative,2
+pg,amount,2
+Normalized intensities,relative,2
+umol/mg,normalised,2
+nmol/mg (wet weight),normalised,2
+pmol of lipid,amount,2
+Peak Height (Normalized Intensity),relative,2
+C12:C13 Ratio,relative,2
+Arbitrary Unites,relative,2
+Normalized Peak Abundance,relative,2
+Area Under Curve,relative,2
+intesity,unknown,2
+Normalised peak area,relative,2
+intensity (arbitrary unit),relative,2
+Height ratio/gDCW,relative,2
+Normalized Intensity (Intensity ratio against internal standard signal)),relative,2
+relative_area,relative,2
+raw counts,relative,2
+area ratio,relative,2
+mM (intracellular concentration),volumetric,2
+Concentration of 13C (uM),volumetric,2
+pmoles,amount,2
+nmol lipid/mg DNA,normalised,2
+Area Under the Curve,relative,2
+Abundance (Mass Spectral Counts),relative,2
+mg/dL,volumetric,2
+umol g FW-1,amount,2
+relative value,relative,2
+blank-substracted abundances,relative,2
+mg/g creatinine,normalised,2
+"pmol/10,000,000 cells",normalised,2
+pmol per mg,normalised,2
+Peak counts,relative,2
+m/z_RT,not_a_value,2
+μg/100ml,volumetric,2
+single intensity normalized,relative,2
+minute,unknown,2
+"Peak Abundance (normalized, blank subtracted, and corrected for baseline noise)",relative,2
+intensity units,relative,2
+intensity (area under the curve),relative,2
+pmol lipid/ ug protein,normalised,2
+None,missing,2
+metabolite quantification (peak height or area as denoted in metaboilite table),relative,2
+Values are raw peak area,relative,2
+raw peak area,relative,2
+Voltage,unknown,2
+pmol/10E6 cells,normalised,2
+Peak area (top),relative,2
+Micromolars,volumetric,2
+Peak Intensiy,relative,2
+pmol per sample,amount,2
+log Abundance,relative,2
+CPM/mg,normalised,2
+TIC-Corrected Peak Area,relative,2
+relative counts,relative,2
+"peak area (pareto-scaled, log2-transformed)",relative,2
+"peak area (pareto-scaled, log2-transformed, 24h creatinine normalised)",relative,2
+nmol lipid per mg protein,normalised,2
+The ratio to total amount of each phospholipid species,relative,2
+Peak Area (cps),relative,2
+Peak area ratio,relative,2
+Fractional enrichment,unknown,2
+Average normalized quantitative value,relative,2
+1,unknown,2
+Relative units,relative,2
+concentration,unknown,2
+Original peak intensity values,relative,2
+Raw output from software,unknown,2
+peak area intensity,relative,2
+Micromolar,volumetric,2
+Ion Abundances,relative,2
+pmols,unknown,2
+:Peak area,relative,2
+relative difference,relative,2
+pmol/10^6 cells,normalised,2
+Ion abundance (max peak height),relative,2
+Normalized Intensities,relative,2
+unitless,unknown,2
+Normalized Concentrations,relative,2
+Presence/Absence,relative,2
+Areas,relative,2
+Ion count,relative,2
+Peak area/Internal Standard,relative,2
+Raw Area Count,relative,2
+peakarea,relative,2
+μmol/L,volumetric,2
+Ion Counts (AUC),relative,2
+log2 transformed intensity,relative,2
+counts normalized to total lipid signal,relative,2
+mol percent,relative,2
+absolute intensities,relative,2
+"Normalized data. All data is unitless. Note that masses ending in ""m/z"" are mass-to-charge values while those ending in ""n"" are neutral masses",relative,2
+μmol/g of protein,normalised,2
+Normalized ion count/L,relative,2
+Relative abundance.,relative,2
+nmoles/mg tissue,normalised,2
+pmol/mg lung tissue,normalised,2
+Intensity Counts,relative,2
+nmol / 10^6 cells,normalised,2
+area ratio (analyte peak area / internal class standard peak area),relative,2
+pmol/mg wet tissue weight,normalised,2
+Peak area/mg of wet tissue,relative,2
+log2 peak area top,relative,2
+da,not_a_value,2
+Relative abundance (isotope normalized),relative,2
+Raw Area,relative,2
+pmol per mg tissue,normalised,2
+Ion Count,relative,2
+nmol/10^6 cells,normalised,2
+umol/L whole blood,volumetric,2
+normalized area,relative,2
+log10(abundance),relative,2
+Integrative area under chromatographic peak,relative,2
+µg/g,normalised,2
+Peak intensity (cps),relative,2
+Intensity units,relative,2
+µg/mg Dry Weight,normalised,2
+nMol,amount,2
+Internal standard normalized abundances,relative,2
+micro molar,volumetric,2
+LC/MS Peak intensity,relative,2
+micromole/gram,normalised,2
+m/z rt,not_a_value,2
+Peak area (LC-MS detected ion intensity),relative,2
+ion counts/second,relative,2
+ng/10^7 cells,normalised,2
+Peak Intensity (Area),relative,2
+Normalized arbitrary unit,relative,2
+AU (peak area),relative,2
+Peak area (corrected for naturally occurring heavy isotopoe),relative,2
+pmole/L,volumetric,2
+retention time,not_a_value,2
+pg/100µL of extract,volumetric,2
+nmol/mL of extract,volumetric,2
+mz_rt,not_a_value,2
+NormArea,relative,2
+molp,unknown,2
+mg/g（fecal sample）,normalised,2
+Normalized Peak Intensity,relative,2
+pg / mg tissue and µL plasma,normalised,2
+Arbitary units,unknown,2
+maximum intensity,relative,2
+Relative abundance normalized to protein amount (a.u. × µL / µg),relative,2
+Relative abundance (a.u.),relative,2
+%label fraction,relative,2
+Not applicable (no metabolite data),unknown,2
+mz_rt(min)/Peak abundance,relative,2
+Peak Area/ug of protein,relative,2
+normalized MS1 peak intensity,relative,2
+nmol per mg of protein,normalised,2
+Picogram/50 milligram (mg) of the brain tissue,normalised,2
+mol% of total lipid content,relative,2
+ng/g of fresh endosperm,normalised,2
+log-transformed normalized peak area,relative,2
+(μg/mL of serum),volumetric,2
+Peak area (SERRF QC normalized),relative,2
+Area ratio to the internal standards,relative,2
+Peak area (relative intensity),relative,2
+Normalized peak height (arbitrary units),relative,2
+"Peak area (MRM, relative abundance)",relative,2
+"nmol per mg tissue for samples, nmol/mL for standards",normalised,2
+nmol/sample,amount,2
+pmols/million cells,normalised,2
+Normalized ion intensity (arbitrary units),relative,2
+Protein-normalized peak area,relative,2
+umol/ml,volumetric,1
+pmol/ug DNA,normalised,1
+% abundance,relative,1
+renormalized corrected Peak area,relative,1
+pmole/g,normalised,1
+nmol/mL serum,volumetric,1
+"mg/100mg (fecal), and mg/ml (serum, duodenum)",normalised,1
+Std. response ratio,relative,1
+SUC,unknown,1
+µM (100µg/ml protein per sample),normalised,1
+pmol/mg dry weight,normalised,1
+µg/100mg sample weight,normalised,1
+nM (norm to 100ug/ml cell protein),normalised,1
+nmol/100 mg sample,normalised,1
+pmol/100 µg protein,normalised,1
+µg/100mg sample,normalised,1
+pmol/mg sample dry weight,normalised,1
+nM/mg,normalised,1
+nmol/g liver protein,normalised,1
+µM (500µl of extraction solvent),volumetric,1
+nmol/mg dry sample weight,normalised,1
+ng/ug protein,normalised,1
+relative concentration/10mg DW,relative,1
+µM/500µl extraction solvent,volumetric,1
+umol/mg Creatinine,normalised,1
+umol/mg creatinine,normalised,1
+mmol/mg,normalised,1
+µmol/l,volumetric,1
+Peak Area Ratio,relative,1
+log2 fold change vs untreated,relative,1
+m/z intensity,relative,1
+Total nmoles (with relative protein adjustment),relative,1
+MS,unknown,1
+13C-palmitate % enrichment,relative,1
+ABS,unknown,1
+ng/mL plasma,volumetric,1
+Concentration (µM),volumetric,1
+% peak area,relative,1
+mass intensity,relative,1
+picomol/mg,normalised,1
+nmol/plate,amount,1
+peal area,relative,1
+counts*min,relative,1
+percent,relative,1
+umol/ug protein,normalised,1
+counts/ug protein,relative,1
+ng/ug of protein,normalised,1
+ug/ul of protein,normalised,1
+unit = ng per ug of protein,normalised,1
+RAW intensity,relative,1
+m/z-retention time features,not_a_value,1
+peak area ratio,relative,1
+Concentration nmol/L,volumetric,1
+Concentration pmol/L,volumetric,1
+Compound Normalised Abundance,relative,1
+scaled intensity,relative,1
+mM in NMR Sample,volumetric,1
+ng/ml or umol/L,volumetric,1
+umol/L or ng/mL,volumetric,1
+nmol/mg of protein,normalised,1
+nmoles/vial,amount,1
+nmols/vial,amount,1
+ug/vial,amount,1
+pmol/umol PC,amount,1
+PeakAreaInCounts,relative,1
+absorbance,relative,1
+relative abundance (main area),relative,1
+Average Peak Area,relative,1
+pmole/ug,normalised,1
+M/100mg stool,normalised,1
+abundance corresponding to m/z,relative,1
+abundance/counts,relative,1
+pg per 1.5 million cells,normalised,1
+Area under the curve Arbitrary units,relative,1
+ARBITRARY,relative,1
+Peak Area Post-Blank Subtraction,relative,1
+Attomoles/CFU,amount,1
+nanomolar in extraction vial,volumetric,1
+picomoles per liter of filtered seawater,amount,1
+peak area per liter of filtered seawater,relative,1
+Fold change versus untreated,relative,1
+Abundance (Counts Log2 Transformed),relative,1
+pmoles per mg protein,normalised,1
+pmol/1E6 cells,normalised,1
+millimolar,volumetric,1
+relative instrument response,relative,1
+MS1 AUC integration,relative,1
+IU,unknown,1
+mV*s,unknown,1
+mV*min,unknown,1
+Area ratio,relative,1
+nmoles/mg protein,normalised,1
+Normalized Peak Area per L of SW filtered,relative,1
+nmol/mg total protein,normalised,1
+relative signal intensity compared to media only,relative,1
+log(relative intensity),relative,1
+normalized signal area,relative,1
+area/ug protein,relative,1
+pmol/ug,normalised,1
+Arbtrary unit,unknown,1
+AUC (unitless),relative,1
+estimated abundances,relative,1
+pg/g,normalised,1
+umol/gDCW,amount,1
+Ion Count Per Second,relative,1
+concentrations (ug/ml),volumetric,1
+pmol/umol,amount,1
+"uL(plasma), pmole/mg (muscle)",normalised,1
+natural abundance corrected and dry residue normalized peak area,relative,1
+UNITS:AU,relative,1
+ug/ug protein,normalised,1
+Normalized Peak Height,relative,1
+µM/mg liver tissue,normalised,1
+pmol/ml(PL) & pmol/mg(HL),normalised,1
+pmol/ml(PS) & pmol/mg(HS),normalised,1
+peak height normalized with creatinine,relative,1
+preak area,relative,1
+Normalized and blank subtracted peak area,relative,1
+intensities,relative,1
+minutes,unknown,1
+log2-transformed autoscaled values,relative,1
+log2-transformed,relative,1
+ug/mg,normalised,1
+μmol/kg,normalised,1
+Total Intensity Units,relative,1
+intensity log2,relative,1
+arbitray unit,unknown,1
+Integrated signal (SpectConnect),relative,1
+aera,unknown,1
+pmol/1000000 cells,normalised,1
+PI3P / 36:1PS,unknown,1
+Log-transformed deconvoluted spectra,relative,1
+raw area count,relative,1
+Neutral Mass,unknown,1
+enrichment percentage,relative,1
+count per second,relative,1
+Abundance (mass spectral counts),relative,1
+Summarised value,unknown,1
+µg/mL,volumetric,1
+Intensities after normalization by Internal standard and log2 transformed,relative,1
+arbitrary unit (relative contents),relative,1
+ng/mg tissue,normalised,1
+Ion signal intensity,relative,1
+normalized area values,relative,1
+log2 autoscaled abundance,relative,1
+change rate,unknown,1
+ratio,relative,1
+ua,unknown,1
+osmolality normalized scaled imputed,relative,1
+pg/mg wet stool,normalised,1
+μg/ml,volumetric,1
+(relative),relative,1
+pmoles/I,amount,1
+Normalized ion intensity,relative,1
+mass peak abundances,relative,1
+Meta-Analysis Effect Size,unknown,1
+Ranked Intensity,relative,1
+Percent peak area (%),relative,1
+area under peak,relative,1
+Normalized Peak abundances,relative,1
+mol%,relative,1
+OriginalScale MS Units,unknown,1
+Log2 (fold-change),relative,1
+Normalized MS Peak Area,relative,1
+Total Abundance,relative,1
+Integral,unknown,1
+N/L,unknown,1
+count per second (CPS),relative,1
+µg/mg FW and arbitrary/mg FW,relative,1
+ppmn,unknown,1
+pmol per mg (tissues) pmol per ml (plasma),normalised,1
+M/z,not_a_value,1
+Area Ratios,relative,1
+peak,relative,1
+nmol/mg dry weight,normalised,1
+Normalized Peak Intensities,relative,1
+retention time underscore m/z,not_a_value,1
+nmoles/mg DW and arbitrary/mg DW,relative,1
+ion intensity peak area,relative,1
+Normalized AUC,relative,1
+pMol,amount,1
+ug/mL,volumetric,1
+ng/g tissue,normalised,1
+mg/mL,volumetric,1
+mg/g tissue,normalised,1
+intensity_(peak_area),relative,1
+Mass isotopomer distributions,unknown,1
+umol/l,volumetric,1
+TIC,unknown,1
+Peak hieght,relative,1
+"For Fc3, % unit",relative,1
+unitless L/H ratio,relative,1
+proportion of Alanine,unknown,1
+Fractional Enrichment (adjusted for natural abundance),relative,1
+Intensity per pixel,relative,1
+Relative Abundance of Isotopologues,relative,1
+MS reading,unknown,1
+Raw quantification,unknown,1
+peak area normalized to IS and cell number,relative,1
+Fractional labelling,unknown,1
+Natural abundance corrected percentages,relative,1
+Estimated metabolite carbon concentration per particulate carbon (nmol C per umol C),amount,1
+pg/hr/ug and g/hr for media,normalised,1
+reads,unknown,1
+pmol/mL of plasma,volumetric,1
+EicCoreArea/Peak Area,relative,1
+intersity,unknown,1
+ug/uL,volumetric,1
+Height,relative,1
+concentration (pmol/mg-protein),normalised,1
+"peak area, normalized",relative,1
+normalized peak area per liter of seawater filtered,relative,1
+pmol/ODml,normalised,1
+Normalized peak height,relative,1
+Peak Heights normalized by mTIC,relative,1
+quant m/z,not_a_value,1
+Q3 Peak Area (area under curve),relative,1
+Dalton,not_a_value,1
+abundance/intensity,relative,1
+542,unknown,1
+631,unknown,1
+internsity,unknown,1
+% relative peak abundance,relative,1
+normalized relative abundance,relative,1
+normalized relative abundance (a.u.),relative,1
+uMol,amount,1
+% Total,relative,1
+pmol/µmol of Total Phosphatidylcholine,amount,1
+nmol per mg tissue wt,normalised,1
+pmol/ug of Protein,normalised,1
+log2(peak area),relative,1
+log2 (peak area),relative,1
+raw ion count,relative,1
+Abundance (Extracted ion chromatogram core area),relative,1
+s,unknown,1
+Labeled peak areas (normalized),relative,1
+Labeled peak areas,relative,1
+Corrected Peak intensities,relative,1
+relative unit to (will only calculate against control),relative,1
+μmol/g DW,normalised,1
+Total Ion Count,relative,1
+area analyzed by Compound Discoverer (counts x seconds),relative,1
+TSS normalized values,relative,1
+pmoles/mg tissue,normalised,1
+nanomoles/mg of tissue,normalised,1
+normalized-BatchCorrected-Imputed-log2transformed Intensity,relative,1
+parts per billion by volume,unknown,1
+Coefficient of variation (CV) value,unknown,1
+ng lipid/mg brain,normalised,1
+lipid content in the sample (nmol/g),normalised,1
+peak results,relative,1
+ng/mg of tissue,normalised,1
+ng/mg of sample,normalised,1
+nmol / mg sample,normalised,1
+µmol/g fresh weight,normalised,1
+µmol,amount,1
+NMR intensity (autoscaled),relative,1
+normalized metabolite percentage per sample,relative,1
+percentage of metabolites per sample,relative,1
+pmoles/L,volumetric,1
+µmol/g dry weight of tissue,normalised,1
+Calculated Concentration (μM),volumetric,1
+NMR peak intensity,relative,1
+min,unknown,1
+relative abundance per mg tissue,relative,1
+umol/g,normalised,1
+µM (for plasma) or mmol/kg (for feces),normalised,1
+m/z_rt,not_a_value,1
+"μg/ml for serum, μg/g for cecal content, μg/g for diet, μg/8*10^7 T.mu cells",normalised,1
+median normalized log 2 transformed peak area,relative,1
+median normalized log 2 transformed peak areas,relative,1
+pmol per umol PC (ventricle) pmol per ml (plasma),volumetric,1
+% Abundance,relative,1
+nmol/g feces,normalised,1
+Peak heights,relative,1
+Area under the Curve,relative,1
+Relative peak intensity,relative,1
+concentration in ng/g wet feces,normalised,1
+concentration in mg/g wet feces,normalised,1
+ion counts/1e6 cells,relative,1
+nmoles/mg Dry Weight,normalised,1
+absolute intensity,relative,1
+Normalized Area Count,relative,1
+average 13C labeling fraction,unknown,1
+M+16 normalized labeling,relative,1
+13C labeling fraction,unknown,1
+relative concentration,relative,1
+TSP_normalized,relative,1
+Area Pct,relative,1
+pmol/g tissue,normalised,1
+Signal intensity normalized by IS for the metabolite signal/c13 carbon enrichment %,relative,1
+arbitrary number,relative,1
+z-score normalized area,relative,1
+z-score normalized,relative,1
+nmoles/mg dry residue protein,normalised,1
+"nmol/g dry weight (liver, intestine), nmol/uL (gallbladder)",normalised,1
+nmol/g dry weight of liver,normalised,1
+Total ion current normalized intensity,relative,1
+Blank substracted Area under curve,relative,1
+LQF Intensity,relative,1
+Normalized bin area,relative,1
+pmol/g liver,normalised,1
+chromatographic areas with no units,relative,1
+Mass Response Ratio,relative,1
+pmol/hemisphere,amount,1
+Peak area (AU),relative,1
+peak area (cps),relative,1
+ug/g,normalised,1
+Peak intentsity,relative,1
+Relative peak area to 13C-ribitol,relative,1
+A,unknown,1
+pmol/sample,amount,1
+Peak intensity (relative abundance),relative,1
+peak area/fresh weight (mg),relative,1
+Area Integration,relative,1
+absolute intensity (pg),relative,1
+Mass isotopomer abundances (%),relative,1
+"oxidized PL/non-oxidized PL, %",relative,1
+nanomoles/million cells,normalised,1
+ppm #NMR_METABOLITE_DATA NMR_METABOLITE_DATA:UNITS,not_a_value,1
+not applicable,missing,1
+Internal standard normalised peak areas,relative,1
+nM for imidazole propionate and urocanate and uM for histidine,volumetric,1
+umol per dL plasma,volumetric,1
+Ratio of Relative abundance,relative,1
+AUC/CFU per mL,relative,1
+Normalized Area: Area/ug of protein,relative,1
+Nomalized Peak Intensities,relative,1
+Peak area (counts),relative,1
+Percent Labeling,relative,1
+Labeling Percentage,relative,1
+Peak Area/mL,relative,1
+arbitrarry unit,unknown,1
+Signal intensity (protein normalized),relative,1
+pmol/ug of protein,normalised,1
+millimoles/liter,amount,1
+Total Ion Counts,relative,1
+ng/mL of plasma,volumetric,1
+"ng/mL of plasma, except estradiol (in peak area) and testosterone (in peak area ratio)",relative,1
+NMR spectral bin intensities (arbitrary units) #NMR_METABOLITE_DATA NMR_METABOLITE_DATA:UNITS,relative,1
+ion count per second,relative,1
+ions counts per second,relative,1
+normalized total ion count,relative,1
+total ion count,relative,1
+pmole/ug of protein,normalised,1
+Normalized Intensity (a.u.),relative,1
+Normalized total ion count,relative,1
+peak area/mg of tissues,relative,1
+z-score,relative,1
+Log2(scaled(raw_abundance)),relative,1
+Arbitrary unit/ug protein,relative,1
+"Normalized and scaled peak intensity (arbitrary units, a.u.)",relative,1
+Area under the curve AUC,relative,1
+pg/5000000 cells,normalised,1
+nM (STDs) pmol/g (analyte),normalised,1
+relative peak heights,relative,1
+pg/2x10e6 cells,normalised,1
+pg/2000000 cells,normalised,1
+pg/1e6 cells,normalised,1
+peak area (a.u.),relative,1
+Area under the peak,relative,1
+ng/mg sample,normalised,1
+arbitrary units (AU),relative,1
+MS peak area,relative,1
+Absolute Intensity (nmol/100 worms) of PC or PE,relative,1
+nAUC,unknown,1
+normalized intensity (arbitrary unit),relative,1
+pmol/mg of liver,normalised,1
+umol per 10^9 CFU,normalised,1
+Normalized intensity (arbitrary unit),relative,1
+Normalized peak intensity (relative to the internal standard) per OD600nm,relative,1
+Normalize peak intensity (relative to the internal standard) per OD600nm,relative,1
+Normalized signal intensity,relative,1
+nmol/L of serum,volumetric,1
+intensity/IS,relative,1
+intensity/Internal Standard,relative,1
+intensity condition/intensity Hanks buffer,relative,1
+intensity condition/intensity Hanks Buffer,relative,1
+peak area (arbitrary units),relative,1
+Arbitrary unit/ug of protein,relative,1
+Log2 fold change of peak intensities,relative,1
+nmol/(gram tissue),normalised,1
+pg/µg,normalised,1
+nmoles/mg,normalised,1
+pmol/total cells,normalised,1
+micromole/million of cells,normalised,1
+spectral lines (overlay),unknown,1
+Intensities (total ion counts at the peak maximum) after baseline subtraction,relative,1
+Intensities (total ion counts at the peak maximum) after baseline subtraction.,relative,1
+Concentration (pmol/10^6 cells),normalised,1
+Not available,unknown,1
+µmol/L of plasma,volumetric,1
+pmol/mg dry tissue,normalised,1
+nmol/L-serum,volumetric,1
+pmol/g-dry-feces,normalised,1
+log2 normalized peak intensity,relative,1
+NA (metabolite data not available),unknown,1
+(ng/ml of serum),volumetric,1
+Normalized area,relative,1
+pmol/mg tissue; pmol/μg protein; μM,normalised,1
+Ion intensity (arbitrary),relative,1
+ion_count,relative,1
+Integrated area of peaks associated with the metabolite of interest,relative,1
+Relative Peak area,relative,1
+ug/g tissue,normalised,1
+Mole fraction (isotopomer fraction),unknown,1
