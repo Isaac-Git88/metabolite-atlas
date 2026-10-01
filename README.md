@@ -9,33 +9,45 @@ metabolite outside the range seen in healthy individuals — but for most
 compounds, in most species, that normal range has never been collected in one
 place. This project builds it.
 
-**Current scope: human (HMDB), yeast (YMDB) and _E. coli_ (ECMDB).** Bovine
-(BMDB) is next. Species is carried on every measurement, and metabolite identity
-is structure-based (InChIKey), so a new organism needs no schema change. Neither
-YMDB nor ECMDB publishes concentrations in its download files; both were scraped
-from their websites — see `pipeline/ymdb/README.md` and `pipeline/ecmdb/README.md`.
+**Current scope: four species databases — human (HMDB), cow (BMDB), yeast (YMDB)
+and _E. coli_ (ECMDB) — plus control-group data from Metabolomics Workbench (MWB),**
+which adds human, cow and six further species. Species is carried on every
+measurement, and metabolite identity is structure-based (InChIKey), so a new
+organism needs no schema change. HMDB and BMDB publish concentrations in their XML
+downloads; YMDB and ECMDB do not, so both were scraped from their websites — see
+the README in each `pipeline/<source>/` folder.
 
 ## What's here
 
 |            |                                                      |
 | ---------- | ---------------------------------------------------- |
-| **5,804**  | reference ranges (species × metabolite × biospecimen) |
-| **3,840**  | metabolites with a range                             |
-| **3 / 727**| species, and structures measured in more than one    |
-| **1,529**  | ranges supported by 3+ independent studies           |
-| **23,624** | measurements in the database                         |
-| **1,660**  | source citations                                     |
+| **9,770**   | reference ranges (species × metabolite × biospecimen) |
+| **5,326**   | metabolites with a range                             |
+| **10 / 1,401** | species, and structures measured in more than one |
+| **3,455**   | ranges supported by 3+ measurements                  |
+| **39,534**  | measurements in the database                         |
+| **1,801**   | source citations                                     |
 
-Human: 4,047 ranges across 2,873 metabolites. Yeast: 866. _E. coli_: 891, of which
-748 metabolites are not in the human data at all.
+| Species | Ranges | Metabolites | Sources |
+| ------- | ------ | ----------- | ------- |
+| Human   | 4,469  | 3,046       | HMDB, MWB |
+| Cow     | 2,775  | 2,079       | BMDB, MWB |
+| _E. coli_ | 891  | 891         | ECMDB |
+| Yeast   | 866    | 866         | YMDB |
+| Mouse, sika deer, rat, rainbow trout, dog, rhesus macaque | 769 | — | MWB |
+
+757 of the _E. coli_ metabolites are not in the human data at all. Cow ranges
+cover milk, rumen fluid, blood, adipose tissue, liver, testis and muscle.
 
 ## Layout
 
 ```
 data/       inputs and generated data (see "Data files" below)
 pipeline/   the five steps, numbered in run order
+pipeline/bmdb/  the cow source: extract from the XML, then prepare for step 3
 pipeline/ymdb/  the yeast source: scrape, then prepare for step 3
 pipeline/ecmdb/ the E. coli source: same two steps
+pipeline/mwb/   Metabolomics Workbench: survey, download, select controls, prepare
 explorer/   template.html (source) and index.html (generated site)
 archive/v1/ superseded first-pass scripts, kept as project history
 ```
@@ -54,6 +66,22 @@ python pipeline/5_build_explorer.py               # DB   -> explorer/index.html
 
 Each script anchors its own paths, so it runs from any working directory.
 
+Steps 1–3 above are for HMDB. Each other source has its own prepare step (see
+its folder's README) and is then parsed with `--source`:
+
+```bash
+python pipeline/bmdb/extract_bmdb_concentrations.py   # needs bmdb_metabolites.xml
+python pipeline/bmdb/prepare_bmdb.py
+python pipeline/ymdb/prepare_ymdb.py
+python pipeline/ecmdb/prepare_ecmdb.py
+for s in BMDB YMDB ECMDB MWB; do python pipeline/3_parse_concentrations.py --source $s; done
+```
+
+Step 4 deletes and rebuilds the database from whichever
+`data/*_concentrations_parsed.csv` files exist, and silently skips missing ones.
+Parse every source before running it, or the atlas (and the site step 5 writes)
+will be missing species.
+
 **Starting from step 2** is normal: `data/hmdb_normal_concentrations_clean.csv`
 is committed, so you can rebuild everything without the 6.5 GB XML. Step 1 is
 only needed to refresh from a new HMDB release — download it from
@@ -68,6 +96,7 @@ would re-commit them in full on every rebuild.
 | File                                   | Committed | Notes                                       |
 | -------------------------------------- | --------- | ------------------------------------------- |
 | `hmdb_metabolites.xml`                 | no        | ~6.5 GB, download separately                |
+| `bmdb_metabolites.xml`                 | no        | ~450 MB, from <https://bmdb.ca/downloads>   |
 | `hmdb_normal_concentrations_raw.csv`   | no        | 51,246 rows                                 |
 | `hmdb_normal_concentrations_clean.csv` | **yes**   | 20,977 rows — the entry point               |
 | `hmdb_concentrations_parsed.csv`       | no        | numeric values + parse provenance           |
@@ -113,6 +142,17 @@ Parsed medians in blood, against published reference intervals:
 Cobalamin's median of 0.0004 µmol/L looks wrong but is correct — B12 circulates
 at sub-nanomolar concentrations.
 
+Cow (BMDB), against typical dairy-cow values:
+
+| Metabolite             | Biospecimen | n  | Median (µmol/L) | Expected                    |
+| ---------------------- | ----------- | -- | --------------- | --------------------------- |
+| D-Glucose              | Blood       | 13 | 3,808           | 2.5–4.2 mM ✓                |
+| 3-Hydroxybutyric acid  | Blood       | 6  | 738             | < 1.2 mM (ketosis cut-off) ✓ |
+| Acetic acid            | Rumen       | 16 | 56,325          | 50–70 mM ✓                  |
+| Propionic acid         | Rumen       | 17 | 16,860          | 15–30 mM ✓                  |
+| Butyric acid           | Rumen       | 16 | 9,383           | 8–15 mM ✓                   |
+| Citric acid            | Milk        | 19 | 6,440           | 6–10 mM ✓                   |
+
 ## Adding another database
 
 `pipeline/3_parse_concentrations.py` carries a registry of source databases and
@@ -125,9 +165,11 @@ the organism each describes, with NCBI taxonomy identifiers:
 | BMDB   | _Bos taurus_ (Cow)                 | 9913  |
 | ECMDB  | _Escherichia coli_                 | 562   |
 
-Extract the new source to a clean CSV in the same column shape, then:
+Extract the new source to a clean CSV in the same column shape (see
+`pipeline/bmdb/prepare_bmdb.py` for the simplest example), register it in
+`SOURCE_FILES` and `SOURCES` in step 3 and `CSV_PATHS` in step 4, then:
 
-    python pipeline/3_parse_concentrations.py --source BMDB
+    python pipeline/3_parse_concentrations.py --source <NAME>
 
 Concatenate the parsed CSVs and run steps 4 and 5. Species is recorded on every
 measurement rather than on the source, so MetaboLights and Metabolomics
@@ -135,6 +177,6 @@ Workbench — which carry many organisms per repository — fit the same schema.
 
 ## Next
 
-- YMDB and BMDB extraction (ECMDB appears to hold no concentration data).
-- A lookup: enter a measured value and see where it falls in the normal range.
-- Part 2 of the brief: Metabolomics Workbench, then MetaboLights.
+- Decide whether BMDB's commercial retail milk (~6,100 of 8,010 milk rows)
+  belongs in the cow's normal range — see `pipeline/bmdb/README.md`.
+- MetaboLights, the second repository in Part 2 of the brief.

@@ -33,3 +33,9 @@ data/mwb/mwtab/
 data/mwb/status.jsonl
 data/mwb/*.json
 data/mwb_concentrations_parsed.csv
+
+# BMDB rebuildable extracts; rebuild with pipeline/bmdb/extract_bmdb_concentrations.py
+data/bmdb/bmdb_concentrations_all.csv
+data/bmdb/bmdb_concentrations_clean.csv
+data/bmdb_concentrations_parsed.csv
+
