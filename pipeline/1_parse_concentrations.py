@@ -54,6 +54,7 @@ SOURCE_FILES = {
     "BMDB":  (DATA / "bmdb" / "bmdb_concentrations_clean.csv", PARSED / "bmdb_concentrations_parsed.csv"),
     "ECMDB": (DATA / "ecmdb" / "ecmdb_concentrations_clean.csv", PARSED / "ecmdb_concentrations_parsed.csv"),
     "MWB":   (DATA / "mwb" / "mwb_concentrations_clean.csv", PARSED / "mwb_concentrations_parsed.csv"),
+    "MTBLS": (DATA / "metabolights" / "mtbls_concentrations_clean.csv", PARSED / "mtbls_concentrations_parsed.csv"),
 }
 
 # ---------------------------------------------------------------------------
@@ -80,6 +81,8 @@ SOURCES = {
     # Metabolomics Workbench holds many organisms: species comes from each row
     # (written by pipeline/mwb/prepare_mwb.py from the study's own metadata).
     "MWB":   (None,                       "per study", 0),
+    # MetaboLights too: species from each row (pipeline/metabolights/prepare_mtbls.py).
+    "MTBLS": (None,                       "per study", 0),
 }
 DEFAULT_SOURCE = "HMDB"
 

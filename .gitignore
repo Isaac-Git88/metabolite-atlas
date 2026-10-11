@@ -39,3 +39,9 @@ data/mwb/*.json
 data/bmdb/bmdb_concentrations_all.csv
 data/bmdb/bmdb_concentrations_clean.csv
 
+# MetaboLights working files; rebuild with pipeline/metabolights/survey_metabolights.py fetch
+data/metabolights/isa/
+data/metabolights/status.jsonl
+data/metabolights/studies.json
+data/metabolights/inchi_inchikey_lookup.csv
+data/metabolights/pubchem_cache.json

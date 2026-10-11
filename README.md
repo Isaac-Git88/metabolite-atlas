@@ -10,8 +10,9 @@ compounds, in most species, that normal range has never been collected in one
 place. This project builds it.
 
 **Current scope: four species databases — human (HMDB), cow (BMDB), yeast (YMDB)
-and _E. coli_ (ECMDB) — plus control-group data from Metabolomics Workbench (MWB),**
-which adds human, cow and six further species. Species is carried on every
+and _E. coli_ (ECMDB) — plus control-group data from two study repositories,
+Metabolomics Workbench (MWB) and MetaboLights (MTBLS),** which add human, cow, mouse and
+five further species. Species is carried on every
 measurement, and metabolite identity is structure-based (InChIKey), so a new
 organism needs no schema change. HMDB and BMDB publish concentrations in their XML
 downloads; YMDB and ECMDB do not, so both were scraped from their websites — see
@@ -21,20 +22,21 @@ the README in each `pipeline/<source>/` folder.
 
 |            |                                                      |
 | ---------- | ---------------------------------------------------- |
-| **9,770**   | reference ranges (species × metabolite × biospecimen) |
-| **5,326**   | metabolites with a range                             |
-| **10 / 1,401** | species, and structures measured in more than one |
-| **3,455**   | ranges supported by 3+ measurements                  |
-| **39,534**  | measurements in the database                         |
+| **9,865**   | reference ranges (species × metabolite × biospecimen) |
+| **5,355**   | metabolites with a range                             |
+| **10 / 1,419** | species, and structures measured in more than one |
+| **3,493**   | ranges supported by 3+ measurements                  |
+| **40,140**  | measurements in the database                         |
 | **1,801**   | source citations                                     |
 
 | Species | Ranges | Metabolites | Sources |
 | ------- | ------ | ----------- | ------- |
-| Human   | 4,469  | 3,046       | HMDB, MWB |
+| Human   | 4,518  | 3,087       | HMDB, MWB, MTBLS |
 | Cow     | 2,775  | 2,079       | BMDB, MWB |
 | _E. coli_ | 891  | 891         | ECMDB |
 | Yeast   | 866    | 866         | YMDB |
-| Mouse, sika deer, rat, rainbow trout, dog, rhesus macaque | 769 | — | MWB |
+| Mouse   | 340    | 325         | MWB, MTBLS |
+| Sika deer, rat, rainbow trout, dog, rhesus macaque | 475 | — | MWB |
 
 757 of the _E. coli_ metabolites are not in the human data at all. Cow ranges
 cover milk, rumen fluid, blood, adipose tissue, liver, testis and muscle.
@@ -46,7 +48,7 @@ RUNNING.md                step-by-step instructions
 requirements.txt          Python packages
 
 pipeline/
-  hmdb/  bmdb/  ymdb/  ecmdb/  mwb/
+  hmdb/  bmdb/  ymdb/  ecmdb/  mwb/  metabolights/
                           one folder per source: extract (or scrape) it, then
                           prepare it in the shared clean-CSV format
   1_parse_concentrations.py   shared step 1: free-text concentrations -> numbers
@@ -54,7 +56,8 @@ pipeline/
   3_build_explorer.py         shared step 3: atlas -> explorer/index.html
 
 data/
-  hmdb/  bmdb/  ymdb/  ecmdb/  mwb/   each source's inputs and clean CSV
+  hmdb/  bmdb/  ymdb/  ecmdb/  mwb/  metabolights/
+                          each source's inputs and clean CSV
   parsed/                 one parsed CSV per source (generated)
   metabolite_atlas.db     the atlas (generated)
 
@@ -99,6 +102,8 @@ would re-commit them in full on every rebuild.
 | `data/ymdb/ymdb_concentrations_all.csv`       | **yes**   | scraped; see `pipeline/ymdb/README.md`        |
 | `data/ecmdb/ecmdb_concentrations_all.csv`     | **yes**   | scraped; see `pipeline/ecmdb/README.md`       |
 | `data/mwb/mwb_concentrations_clean.csv`       | **yes**   | control groups after review                   |
+| `data/metabolights/mtbls_concentrations_clean.csv` | **yes** | control groups after review (8 studies)  |
+| `data/metabolights/isa/`                      | no        | downloaded study files; rebuild with the survey |
 | `data/parsed/*_concentrations_parsed.csv`     | no        | numeric values + parse provenance             |
 | `data/metabolite_atlas.db`                    | no        | the atlas                                     |
 | `explorer/index.html`                         | **yes**   | self-contained site, served by GitHub Pages   |
@@ -182,4 +187,6 @@ repository — fit the same schema.
 
 - Decide whether BMDB's commercial retail milk (~6,100 of 8,010 milk rows)
   belongs in the cow's normal range — see `pipeline/bmdb/README.md`.
-- MetaboLights, the second repository in Part 2 of the brief.
+- MetaboLights: 8 studies are in (606 values); the team still has to confirm the
+  first-pass control and unit decisions, and 10 more studies need their units checked
+  in the papers. See `pipeline/metabolights/README.md`.

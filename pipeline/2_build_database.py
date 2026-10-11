@@ -66,6 +66,7 @@ CSV_PATHS = [
     DATA / "parsed" / "bmdb_concentrations_parsed.csv",
     DATA / "parsed" / "ecmdb_concentrations_parsed.csv",
     DATA / "parsed" / "mwb_concentrations_parsed.csv",
+    DATA / "parsed" / "mtbls_concentrations_parsed.csv",
 ]
 INCHIKEY_LOOKUP = DATA / "hmdb" / "hmdb_inchikey_lookup.csv"
 DB_PATH = DATA / "metabolite_atlas.db"

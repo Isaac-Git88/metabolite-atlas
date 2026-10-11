@@ -51,6 +51,7 @@ python pipeline/bmdb/prepare_bmdb.py
 python pipeline/ymdb/prepare_ymdb.py
 python pipeline/ecmdb/prepare_ecmdb.py
 #   MWB: nothing to do, data/mwb/mwb_concentrations_clean.csv is committed
+#   MTBLS: nothing to do, data/metabolights/mtbls_concentrations_clean.csv is committed
 
 # Shared step 1: free-text concentrations -> numbers (data/parsed/)
 python pipeline/1_parse_concentrations.py --source HMDB
@@ -58,6 +59,7 @@ python pipeline/1_parse_concentrations.py --source BMDB
 python pipeline/1_parse_concentrations.py --source YMDB
 python pipeline/1_parse_concentrations.py --source ECMDB
 python pipeline/1_parse_concentrations.py --source MWB
+python pipeline/1_parse_concentrations.py --source MTBLS
 
 # Shared steps 2 and 3
 python pipeline/2_build_database.py                   # -> data/metabolite_atlas.db
@@ -78,9 +80,9 @@ else still builds, but the site has no cow data from BMDB, so **don't commit
 ### Expected output (October 2026)
 
 Tested on a fresh clone: these commands reproduce the committed `explorer/index.html`.
-Step 2 ends with 9,770 reference ranges: Human 4,469, Cow 2,775, E. coli 891, Yeast 866,
-plus six smaller species from Metabolomics Workbench. Step 3 reports 39,534 measurements
-and 10 species.
+Step 2 ends with 9,865 reference ranges: Human 4,518, Cow 2,775, E. coli 891, Yeast 866,
+Mouse 340, plus five smaller species from Metabolomics Workbench. Step 3 reports 40,140
+measurements and 10 species.
 
 ---
 
@@ -119,22 +121,27 @@ the decisions already entered.
 
 ---
 
-## 6. MetaboLights (in progress)
+## 6. MetaboLights
 
-MetaboLights is not in the atlas yet. Step 1, a survey of which studies report real
-concentrations, is in `pipeline/metabolights/`:
+MetaboLights is in the atlas: control-group data from 8 studies (606 values, human and
+mouse blood), chosen by a survey of all public studies and a review of their control
+groups and units. Its clean CSV is committed, so section 3 needs no MetaboLights download.
+To redo it from scratch (needs internet access to ebi.ac.uk):
 
 ```bash
-python pipeline/metabolights/survey_metabolights.py check               # can we reach MetaboLights?
-python pipeline/metabolights/survey_metabolights.py fetch --limit 20    # small trial
-python pipeline/metabolights/survey_metabolights.py fetch --workers 4   # all ~3,500 public studies
+python pipeline/metabolights/survey_metabolights.py fetch --workers 4   # all ~3,500 public studies (~40 min)
 python pipeline/metabolights/survey_metabolights.py survey
 python pipeline/metabolights/survey_metabolights.py fetch --maf         # data files of shortlisted studies
 python pipeline/metabolights/survey_metabolights.py survey
+python pipeline/metabolights/select_controls.py                        # -> data/metabolights/mtbls_control_review.csv
+# review: fill in decision and unit_confirmed in that file
+python pipeline/metabolights/prepare_mtbls.py names
+python pipeline/metabolights/prepare_mtbls.py build
 ```
 
-Results go to `data/metabolights/mtbls_study_survey.csv`. See
-`pipeline/metabolights/README.md` for how the screen works.
+then the shared steps 1–3 for `--source MTBLS`. Only studies with a confirmed
+concentration unit are used, so confirming a unit for a pending study and re-running
+`names` and `build` adds it. See `pipeline/metabolights/README.md` for the details.
 
 ---
 
