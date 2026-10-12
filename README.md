@@ -26,7 +26,7 @@ the README in each `pipeline/<source>/` folder.
 | **5,355**   | metabolites with a range                             |
 | **10 / 1,419** | species, and structures measured in more than one |
 | **3,493**   | ranges supported by 3+ measurements                  |
-| **40,140**  | measurements in the database                         |
+| **40,145**  | measurements in the database                         |
 | **1,801**   | source citations                                     |
 
 | Species | Ranges | Metabolites | Sources |
@@ -187,6 +187,6 @@ repository — fit the same schema.
 
 - Decide whether BMDB's commercial retail milk (~6,100 of 8,010 milk rows)
   belongs in the cow's normal range — see `pipeline/bmdb/README.md`.
-- MetaboLights: 8 studies are in (606 values); the team still has to confirm the
+- MetaboLights: 8 studies are in (611 values); the team still has to confirm the
   first-pass control and unit decisions, and 10 more studies need their units checked
   in the papers. See `pipeline/metabolights/README.md`.

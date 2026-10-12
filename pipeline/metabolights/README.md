@@ -181,13 +181,19 @@ are dropped (`mtbls_value_check.csv`). Studies dropped after inspection are list
 in `EXCLUDE_STUDIES`.
 
 **First run (October 2026, offline: no RDKit or PubChem):** 1,425 distinct metabolites in the 9
-usable studies, 629 resolved (most of the rest are lipid species). 606 values from 8 studies
-(556 human, 50 mouse; all blood). MTBLS13862 was excluded: its mouse amino acids come out 10–20×
+usable studies, 631 resolved (most of the rest are lipid species). 611 values from 8 studies
+(561 human, 50 mouse; all blood). MTBLS13862 was excluded: its mouse amino acids come out 10–20×
 below expected with the stated nmol/L. The other studies sit at 0.3–1.2× HMDB, and spot checks
 agree with physiology (glucose 5.3 mmol/L, creatinine 50–108, valine 130–290, glutamine
-400–730 µmol/L). In the atlas: 606 measurements, data for 313 human metabolites, 46 new mouse
+400–730 µmol/L). In the atlas: 611 measurements, data for 314 human metabolites, 46 new mouse
 ranges. Running `names` with RDKit installed or with PubChem access should resolve more of the
 non-lipid metabolites.
+
+**Fix (October 2026):** when several studies name the same structure differently
+("linolenic acid", "Alpha-Linolenic acid"; "C0", "L-Carnitine"), `names` kept only the name it
+saw first, so whether a metabolite resolved depended on study order: adding one study could make
+another lose a metabolite. Every name is now tried (listed in the map's `other_names` column).
+This added 5 values (carnitine and methionine sulfoxide) and changed none.
 
 ## Next
 

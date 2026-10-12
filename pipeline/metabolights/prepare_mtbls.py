@@ -289,6 +289,12 @@ def pubchem_lookup(queries, workers=4):
 
     todo = [q for q in queries if q[0] + ":" + q[1] not in cache]
     if todo:
+        # one quick probe first, so an unreachable PubChem costs seconds, not minutes of retries
+        try:
+            s.get(f"{base}/name/glucose/property/InChIKey/JSON", timeout=15).raise_for_status()
+        except Exception as e:
+            print(f"  PubChem not reachable ({type(e).__name__}): skipped. Re-run with internet access, or use --offline.")
+            return cache
         print(f"  asking PubChem about {len(todo)} structures/names (cached in {os.path.relpath(PUBCHEM_CACHE, ROOT)}) ...")
         with ThreadPoolExecutor(max_workers=workers) as ex:     # PubChem allows ~5 requests/s
             list(ex.map(job, todo))
@@ -311,10 +317,15 @@ def names_step(offline):
                 if not (e["name"] or e["inchi"] or e["hmdb"]):
                     continue
                 k = entry_key(e)
-                cur = entries.setdefault(k, dict(e, studies=set()))
+                cur = entries.setdefault(k, dict(e, studies=set(), names=[]))
                 for f in ("name", "hmdb", "chebi", "inchi", "formula"):
                     cur[f] = cur[f] or e[f]
                 cur["studies"].add(sid)
+                # the same structure can be named differently in different studies
+                # ("linolenic acid", "Alpha-Linolenic acid"); every name is tried below,
+                # so the result does not depend on which study is read first
+                if e["name"] and e["name"] not in cur["names"]:
+                    cur["names"].append(e["name"])
 
     look = list(csv.DictReader(open(HMDB_LOOKUP, encoding="utf-8")))
     hmdb_ik = {r["hmdb_id"]: r["inchikey"] for r in look if r["inchikey"]}
@@ -335,7 +346,9 @@ def names_step(offline):
 
     out = []
     for k, e in entries.items():
+        names = sorted(e["names"], key=str.lower) or [e["name"]]
         r = {"key": k, "name": e["name"], "clean_name": tidy_name(e["name"]),
+             "other_names": " | ".join(n for n in names if n != e["name"]),
              "chebi": e["chebi"], "inchi": e["inchi"], "formula": e["formula"],
              "inchikey": "", "hmdb_id": "", "matched_name": "", "method": "",
              "studies": " ".join(sorted(e["studies"], key=lambda s: int(s[5:])))}
@@ -346,13 +359,18 @@ def names_step(offline):
         elif e["inchi"] and rdkit and rdkit(e["inchi"]):
             r.update(inchikey=rdkit(e["inchi"]), method="inchi_rdkit")
         else:
-            hit = by_name.get(r["clean_name"].lower())
+            cleaned = [tidy_name(n) for n in names]
+            hit = next((by_name[c.lower()] for c in cleaned if c.lower() in by_name), None)
             loose = None
-            if not hit and r["clean_name"].isascii():      # garbled names ('¦Â-alanine') are not guessed at
-                key, prefix = name_key(r["clean_name"])
+            for c in ([] if hit else cleaned):
+                if not c.isascii():                        # garbled names ('¦Â-alanine') are not guessed at
+                    continue
+                key, prefix = name_key(c)
                 forms = by_key.get(key, {}) if len(key) >= 4 else {}
                 # an explicit L-/D- must match; with none, prefer the L- form (the one in blood)
                 loose = forms.get(prefix) if prefix else (forms.get("l") or forms.get("") or forms.get("d"))
+                if loose:
+                    break
             if hit:
                 r.update(hmdb_id=hit[0], inchikey=hit[1], matched_name=hit[2], method="hmdb_name")
             elif loose:
