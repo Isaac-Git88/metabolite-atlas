@@ -41,6 +41,7 @@ Usage
     python pipeline/metabolights/survey_metabolights.py survey
     python pipeline/metabolights/survey_metabolights.py fetch --maf           # MAFs of likely/possible studies
     python pipeline/metabolights/survey_metabolights.py survey                # again, now with MAF sizes
+    python pipeline/metabolights/survey_metabolights.py fetch --maf --ids MTBLS27   # one study: metadata + MAFs
 
 Notes
 -----
@@ -177,6 +178,10 @@ def fetch_isa(s, sid):
 
 def fetch_mafs(s, sid):
     folder = os.path.join(ISA_DIR, sid)
+    if not os.path.exists(os.path.join(folder, "files.json")):
+        fetch_isa(s, sid)                    # metadata first, e.g. on a fresh clone
+        if not os.path.exists(os.path.join(folder, "files.json")):
+            return "empty"
     names = json.load(open(os.path.join(folder, "files.json")))
     got = 0
     for n in names:
@@ -194,7 +199,11 @@ def fetch(workers, limit, maf, ids_arg):
     os.makedirs(ISA_DIR, exist_ok=True)
     s = session()
 
-    if maf:
+    if maf and ids_arg:
+        # named studies only, e.g. to add one study after its unit is confirmed
+        ids, kind, job_fn = list(ids_arg), "maf", fetch_mafs
+        print(f"{len(ids)} named studies")
+    elif maf:
         if not os.path.exists(SURVEY_FILE):
             sys.exit("Run `survey` first: --maf downloads MAFs only for studies it marks likely/possible.")
         with open(SURVEY_FILE, newline="", encoding="utf-8") as f:
@@ -205,8 +214,9 @@ def fetch(workers, limit, maf, ids_arg):
         print(f"{len(ids)} likely/possible studies with a MAF")
     else:
         ids = ids_arg or study_ids(s)
-        with open(STUDIES_FILE, "w") as f:
-            json.dump(ids, f)
+        if not ids_arg:                      # keep the full public list, not a hand-picked subset
+            with open(STUDIES_FILE, "w") as f:
+                json.dump(ids, f)
         kind, job_fn = "isa", fetch_isa
 
     done = done_ids(kind)
