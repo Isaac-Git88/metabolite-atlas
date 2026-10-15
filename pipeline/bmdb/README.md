@@ -46,11 +46,11 @@ kept and are identifiable by their `subject_condition`.
 ```
 python pipeline/bmdb/extract_bmdb_concentrations.py   # XML -> data/bmdb/bmdb_concentrations_all.csv (~10 s)
 python pipeline/bmdb/prepare_bmdb.py                  # -> data/bmdb/bmdb_concentrations_clean.csv
-python pipeline/3_parse_concentrations.py --source BMDB
-python pipeline/4_build_database.py
-python pipeline/5_build_explorer.py
+python pipeline/1_parse_concentrations.py --source BMDB
+python pipeline/2_build_database.py
+python pipeline/3_build_explorer.py
 ```
 
-Step 3 parses 99.9% of BMDB values. The 7 it doesn't are `<LOQ` and `x +/- *`. Two units
+The shared parser (`pipeline/1_parse_concentrations.py`) reads 99.9% of BMDB values. The 7 it doesn't are `<LOQ` and `x +/- *`. Two units
 are unclassified and so not comparable: `mg/100g dry matter content` (62 rows) and
 `IU/100 g` (3).

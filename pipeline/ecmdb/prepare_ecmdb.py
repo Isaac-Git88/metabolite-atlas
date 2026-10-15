@@ -1,9 +1,9 @@
 """
-Step 3 (E. coli) -- turn the scraped ECMDB concentrations into the shape the
+Prepare (E. coli) -- turn the scraped ECMDB concentrations into the shape the
 shared parser expects, so E. coli joins the atlas through the same steps.
 
 Input:  data/ecmdb/ecmdb_concentrations_all.csv   (from extract_ecmdb_concentrations.py)
-Output: data/ecmdb/ecmdb_concentrations_clean.csv (the input to 3_parse_concentrations.py)
+Output: data/ecmdb/ecmdb_concentrations_clean.csv (the input to 1_parse_concentrations.py)
 
 The mappings, and why:
 

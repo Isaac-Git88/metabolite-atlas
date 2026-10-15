@@ -1,5 +1,5 @@
 """
-Step 4 -- build the normalised SQLite database and the reference-range table.
+Step 2 -- build the normalised SQLite database and the reference-range table.
 
 Five related tables (metabolites, biospecimens, concentration_units,
 references, measurements) plus reference_ranges: the summary statistics the
@@ -35,15 +35,15 @@ Metabolite identity across species -- two levels, deliberately kept apart:
   is one, otherwise the source's own id -- so a metabolite that exists in only
   one database (186 yeast-only ones, mostly lipids) still loads.
 
-Input:  data/hmdb_concentrations_parsed.csv, data/ymdb_concentrations_parsed.csv,
-        and any other data/<source>_concentrations_parsed.csv
-        data/hmdb_inchikey_lookup.csv -- InChIKeys for HMDB metabolites, which
+Input:  data/parsed/<source>_concentrations_parsed.csv -- every one that exists
+        (written by 1_parse_concentrations.py; a missing one is skipped)
+        data/hmdb/hmdb_inchikey_lookup.csv -- InChIKeys for HMDB metabolites, which
         HMDB's concentration records do not carry
 Output: data/metabolite_atlas.db
 
 Usage:
     pip install pandas
-    python pipeline/4_build_database.py
+    python pipeline/2_build_database.py
 """
 
 import sqlite3
@@ -61,13 +61,14 @@ EXPLORER = ROOT / "explorer"
 # Every parsed source found here is loaded; a missing one is simply skipped, so
 # the atlas grows by adding a file rather than by editing this script.
 CSV_PATHS = [
-    DATA / "hmdb_concentrations_parsed.csv",
-    DATA / "ymdb_concentrations_parsed.csv",
-    DATA / "bmdb_concentrations_parsed.csv",
-    DATA / "ecmdb_concentrations_parsed.csv",
-    DATA / "mwb_concentrations_parsed.csv",
+    DATA / "parsed" / "hmdb_concentrations_parsed.csv",
+    DATA / "parsed" / "ymdb_concentrations_parsed.csv",
+    DATA / "parsed" / "bmdb_concentrations_parsed.csv",
+    DATA / "parsed" / "ecmdb_concentrations_parsed.csv",
+    DATA / "parsed" / "mwb_concentrations_parsed.csv",
+    DATA / "parsed" / "mtbls_concentrations_parsed.csv",
 ]
-INCHIKEY_LOOKUP = DATA / "hmdb_inchikey_lookup.csv"
+INCHIKEY_LOOKUP = DATA / "hmdb" / "hmdb_inchikey_lookup.csv"
 DB_PATH = DATA / "metabolite_atlas.db"
 
 SCHEMA = """
@@ -347,7 +348,7 @@ def main():
     paths = [p for p in CSV_PATHS if p.exists()]
     if not paths:
         raise FileNotFoundError(
-            "No parsed CSVs found in %s. Run 3_parse_concentrations.py first." % DATA
+            "No parsed CSVs found in %s. Run 1_parse_concentrations.py first." % (DATA / "parsed")
         )
 
     frames = []
@@ -362,7 +363,7 @@ def main():
     print("  %s rows in total" % format(len(df), ","))
 
     # HMDB's concentration records carry no structure key, so the InChIKeys come
-    # from the lookup table built alongside them (see data/hmdb_inchikey_lookup.csv).
+    # from the lookup table built alongside them (see data/hmdb/hmdb_inchikey_lookup.csv).
     if INCHIKEY_LOOKUP.exists():
         look = pd.read_csv(INCHIKEY_LOOKUP, dtype=str, keep_default_na=False,
                            na_values=[""]).dropna(subset=["inchikey"])

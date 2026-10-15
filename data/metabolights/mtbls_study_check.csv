@@ -1,0 +1,10 @@
+study_id,species,metabolites,shared_with_hmdb,median_log10_ratio,typical_fold_vs_hmdb,result
+MTBLS143,Mouse,50,36,-0.41,0.389,ok
+MTBLS2014,Human,34,33,-0.25,0.556,ok
+MTBLS2104,Human,45,38,-0.01,0.969,ok
+MTBLS2615,Human,116,89,-0.00,0.998,ok
+MTBLS3852,Human,32,31,0.09,1.23,ok
+MTBLS7337,Human,176,146,-0.12,0.763,ok
+MTBLS12333,Human,138,111,0.02,1.05,ok
+MTBLS13862,Mouse,30,29,-1.09,0.082,"left out: mouse serum amino acids ~10-20x below expected (glycine 36, alanine 18 umol/L) with the stated nmol/L; the unit or a dilution factor is likely missing - check the paper"
+MTBLS15429,Human,22,16,-0.53,0.295,ok

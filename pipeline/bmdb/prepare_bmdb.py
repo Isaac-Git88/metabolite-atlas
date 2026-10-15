@@ -1,9 +1,9 @@
 """
 BMDB step 2 -- turn the extracted BMDB concentrations into the shape the shared
-parser expects, so cow joins the atlas through the same steps 3-5.
+parser expects, so cow joins the atlas through the shared steps 1-3.
 
 Input:  data/bmdb/bmdb_concentrations_all.csv   (from extract_bmdb_concentrations.py)
-Output: data/bmdb/bmdb_concentrations_clean.csv (the input to 3_parse_concentrations.py)
+Output: data/bmdb/bmdb_concentrations_clean.csv (the input to 1_parse_concentrations.py)
 
 What is dropped, and why:
 

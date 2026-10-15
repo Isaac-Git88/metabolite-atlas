@@ -1,14 +1,14 @@
 """
-Step 2 -- drop records that carry a citation but no concentration value.
+HMDB step 2 -- drop records that carry a citation but no concentration value.
 
 About 59% of HMDB's normal_concentrations entries have a reference attached but
 no number, so they cannot contribute to a range. 51,246 rows in, 20,977 out.
 
-Input:  data/hmdb_normal_concentrations_raw.csv
-Output: data/hmdb_normal_concentrations_clean.csv
+Input:  data/hmdb/hmdb_normal_concentrations_raw.csv   (from extract_hmdb.py)
+Output: data/hmdb/hmdb_normal_concentrations_clean.csv (committed; the input to 1_parse_concentrations.py)
 
 Usage:
-    python pipeline/2_remove_empty_concentrations.py
+    python pipeline/hmdb/prepare_hmdb.py
 """
 
 import csv
@@ -18,8 +18,8 @@ from pathlib import Path
 # from any working directory. Inputs and generated data live in data/, the
 # website in explorer/.
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent
-DATA = ROOT / "data"
+ROOT = HERE.parent.parent
+DATA = ROOT / "data" / "hmdb"
 EXPLORER = ROOT / "explorer"
 
 INPUT_FILE = DATA / "hmdb_normal_concentrations_raw.csv"

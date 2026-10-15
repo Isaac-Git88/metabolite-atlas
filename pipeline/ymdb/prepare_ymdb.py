@@ -1,9 +1,9 @@
 """
-Step 3 (yeast) -- turn the scraped YMDB concentrations into the shape the shared
+Prepare (yeast) -- turn the scraped YMDB concentrations into the shape the shared
 parser expects, so yeast joins the atlas through the same steps as human data.
 
 Input:  data/ymdb/ymdb_concentrations_all.csv   (from extract_ymdb_concentrations.py)
-Output: data/ymdb/ymdb_concentrations_clean.csv (the input to 3_parse_concentrations.py)
+Output: data/ymdb/ymdb_concentrations_clean.csv (the input to 1_parse_concentrations.py)
 
 Three mappings are needed, and each is a judgement worth stating in the report:
 
@@ -50,7 +50,7 @@ BIOSPECIMEN = "Whole cell"
 IN_HOUSE = "YMDB in-house measurement (unpublished)"
 
 FIELDS = [
-    # the columns 3_parse_concentrations.py reads
+    # the columns 1_parse_concentrations.py reads
     "hmdb_id", "metabolite_name", "biospecimen",
     "concentration_value_raw", "concentration_units",
     "subject_age", "subject_sex", "subject_condition",

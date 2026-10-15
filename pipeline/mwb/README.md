@@ -94,9 +94,9 @@ a team decision. The file as it was before the review is kept as `mwb_control_re
 ```
 python pipeline/mwb/prepare_mwb.py names     # match names to structures (asks RefMet; cached, resumable)
 python pipeline/mwb/prepare_mwb.py build     # control samples -> umol/L -> one value per study
-python pipeline/3_parse_concentrations.py --source MWB
-python pipeline/4_build_database.py
-python pipeline/5_build_explorer.py
+python pipeline/1_parse_concentrations.py --source MWB
+python pipeline/2_build_database.py
+python pipeline/3_build_explorer.py
 ```
 
 **Names → structure.** Only ~1% of MWB metabolite rows carry an InChIKey and ~9% an HMDB ID; the rest are

@@ -10,8 +10,9 @@ compounds, in most species, that normal range has never been collected in one
 place. This project builds it.
 
 **Current scope: four species databases — human (HMDB), cow (BMDB), yeast (YMDB)
-and _E. coli_ (ECMDB) — plus control-group data from Metabolomics Workbench (MWB),**
-which adds human, cow and six further species. Species is carried on every
+and _E. coli_ (ECMDB) — plus control-group data from two study repositories,
+Metabolomics Workbench (MWB) and MetaboLights (MTBLS),** which add human, cow, mouse and
+five further species. Species is carried on every
 measurement, and metabolite identity is structure-based (InChIKey), so a new
 organism needs no schema change. HMDB and BMDB publish concentrations in their XML
 downloads; YMDB and ECMDB do not, so both were scraped from their websites — see
@@ -21,20 +22,21 @@ the README in each `pipeline/<source>/` folder.
 
 |            |                                                      |
 | ---------- | ---------------------------------------------------- |
-| **9,770**   | reference ranges (species × metabolite × biospecimen) |
-| **5,326**   | metabolites with a range                             |
-| **10 / 1,401** | species, and structures measured in more than one |
-| **3,455**   | ranges supported by 3+ measurements                  |
-| **39,534**  | measurements in the database                         |
+| **9,865**   | reference ranges (species × metabolite × biospecimen) |
+| **5,355**   | metabolites with a range                             |
+| **10 / 1,419** | species, and structures measured in more than one |
+| **3,493**   | ranges supported by 3+ measurements                  |
+| **40,145**  | measurements in the database                         |
 | **1,801**   | source citations                                     |
 
 | Species | Ranges | Metabolites | Sources |
 | ------- | ------ | ----------- | ------- |
-| Human   | 4,469  | 3,046       | HMDB, MWB |
+| Human   | 4,518  | 3,087       | HMDB, MWB, MTBLS |
 | Cow     | 2,775  | 2,079       | BMDB, MWB |
 | _E. coli_ | 891  | 891         | ECMDB |
 | Yeast   | 866    | 866         | YMDB |
-| Mouse, sika deer, rat, rainbow trout, dog, rhesus macaque | 769 | — | MWB |
+| Mouse   | 340    | 325         | MWB, MTBLS |
+| Sika deer, rat, rainbow trout, dog, rhesus macaque | 475 | — | MWB |
 
 757 of the _E. coli_ metabolites are not in the human data at all. Cow ranges
 cover milk, rumen fluid, blood, adipose tissue, liver, testis and muscle.
@@ -42,66 +44,69 @@ cover milk, rumen fluid, blood, adipose tissue, liver, testis and muscle.
 ## Layout
 
 ```
-data/       inputs and generated data (see "Data files" below)
-pipeline/   the five steps, numbered in run order
-pipeline/bmdb/  the cow source: extract from the XML, then prepare for step 3
-pipeline/ymdb/  the yeast source: scrape, then prepare for step 3
-pipeline/ecmdb/ the E. coli source: same two steps
-pipeline/mwb/   Metabolomics Workbench: survey, download, select controls, prepare
+RUNNING.md                step-by-step instructions
+requirements.txt          Python packages
+
+pipeline/
+  hmdb/  bmdb/  ymdb/  ecmdb/  mwb/  metabolights/
+                          one folder per source: extract (or scrape) it, then
+                          prepare it in the shared clean-CSV format
+  1_parse_concentrations.py   shared step 1: free-text concentrations -> numbers
+  2_build_database.py         shared step 2: parsed CSVs -> SQLite atlas
+  3_build_explorer.py         shared step 3: atlas -> explorer/index.html
+
+data/
+  hmdb/  bmdb/  ymdb/  ecmdb/  mwb/  metabolights/
+                          each source's inputs and clean CSV
+  parsed/                 one parsed CSV per source (generated)
+  metabolite_atlas.db     the atlas (generated)
+
 explorer/   template.html (source) and index.html (generated site)
 archive/v1/ superseded first-pass scripts, kept as project history
 ```
 
 ## Running the pipeline
 
-```bash
-pip install pandas
-
-python pipeline/1_extract_hmdb.py                 # XML  -> raw CSV   (slow, ~6.5 GB input)
-python pipeline/2_remove_empty_concentrations.py  # raw  -> clean CSV
-python pipeline/3_parse_concentrations.py         # text -> numbers
-python pipeline/4_build_database.py               # CSV  -> SQLite
-python pipeline/5_build_explorer.py               # DB   -> explorer/index.html
-```
-
-Each script anchors its own paths, so it runs from any working directory.
-
-Steps 1–3 above are for HMDB. Each other source has its own prepare step (see
-its folder's README) and is then parsed with `--source`:
+Each source is prepared in its own folder under `pipeline/`, then goes through the
+three shared steps:
 
 ```bash
-python pipeline/bmdb/extract_bmdb_concentrations.py   # needs bmdb_metabolites.xml
-python pipeline/bmdb/prepare_bmdb.py
-python pipeline/ymdb/prepare_ymdb.py
-python pipeline/ecmdb/prepare_ecmdb.py
-for s in BMDB YMDB ECMDB MWB; do python pipeline/3_parse_concentrations.py --source $s; done
+pip install -r requirements.txt
+
+python pipeline/bmdb/prepare_bmdb.py                # e.g. one source's prepare step
+python pipeline/1_parse_concentrations.py --source BMDB
+python pipeline/2_build_database.py                 # every parsed CSV -> data/metabolite_atlas.db
+python pipeline/3_build_explorer.py                 # -> explorer/index.html
 ```
 
-Step 4 deletes and rebuilds the database from whichever
-`data/*_concentrations_parsed.csv` files exist, and silently skips missing ones.
-Parse every source before running it, or the atlas (and the site step 5 writes)
-will be missing species.
-
-**Starting from step 2** is normal: `data/hmdb_normal_concentrations_clean.csv`
-is committed, so you can rebuild everything without the 6.5 GB XML. Step 1 is
-only needed to refresh from a new HMDB release — download it from
-<https://hmdb.ca/downloads> into `data/`.
+Step 2 rebuilds the database from whichever parsed CSVs exist and silently skips
+missing ones, so parse every source first. The full sequence for all five sources,
+re-downloading each source from scratch, and troubleshooting are in
+[RUNNING.md](RUNNING.md). Each script anchors its own paths, so it runs from any
+working directory.
 
 ## Data files
 
-Only the clean CSV and the generated site are committed. Everything else in
-`data/` is reproducible and gitignored, because git cannot diff binaries and
+The clean CSVs the shared steps start from, the Metabolomics Workbench review
+files and the generated site are committed. Downloads and everything the
+pipeline regenerates are gitignored, because git cannot diff binaries and
 would re-commit them in full on every rebuild.
 
-| File                                   | Committed | Notes                                       |
-| -------------------------------------- | --------- | ------------------------------------------- |
-| `hmdb_metabolites.xml`                 | no        | ~6.5 GB, download separately                |
-| `bmdb_metabolites.xml`                 | no        | ~450 MB, from <https://bmdb.ca/downloads>   |
-| `hmdb_normal_concentrations_raw.csv`   | no        | 51,246 rows                                 |
-| `hmdb_normal_concentrations_clean.csv` | **yes**   | 20,977 rows — the entry point               |
-| `hmdb_concentrations_parsed.csv`       | no        | numeric values + parse provenance           |
-| `metabolite_atlas.db`                  | no        | the atlas                                   |
-| `explorer/index.html`                  | **yes**   | self-contained site, served by GitHub Pages |
+| File                                          | Committed | Notes                                         |
+| --------------------------------------------- | --------- | --------------------------------------------- |
+| `data/hmdb/hmdb_metabolites.xml`              | no        | ~6.5 GB, from <https://hmdb.ca/downloads>     |
+| `data/hmdb/hmdb_normal_concentrations_raw.csv`| no        | 51,246 rows                                   |
+| `data/hmdb/hmdb_normal_concentrations_clean.csv` | **yes** | 20,974 rows — HMDB's entry point             |
+| `data/hmdb/hmdb_inchikey_lookup.csv`          | **yes**   | InChIKeys for HMDB metabolites                |
+| `data/bmdb/bmdb_metabolites.xml`              | no        | ~450 MB, from <https://bmdb.ca/downloads>     |
+| `data/ymdb/ymdb_concentrations_all.csv`       | **yes**   | scraped; see `pipeline/ymdb/README.md`        |
+| `data/ecmdb/ecmdb_concentrations_all.csv`     | **yes**   | scraped; see `pipeline/ecmdb/README.md`       |
+| `data/mwb/mwb_concentrations_clean.csv`       | **yes**   | control groups after review                   |
+| `data/metabolights/mtbls_concentrations_clean.csv` | **yes** | control groups after review (8 studies)  |
+| `data/metabolights/isa/`                      | no        | downloaded study files; rebuild with the survey |
+| `data/parsed/*_concentrations_parsed.csv`     | no        | numeric values + parse provenance             |
+| `data/metabolite_atlas.db`                    | no        | the atlas                                     |
+| `explorer/index.html`                         | **yes**   | self-contained site, served by GitHub Pages   |
 
 ## Two decisions worth knowing
 
@@ -123,7 +128,7 @@ SD, ranges written high-to-low. Four values had been corrupted into dates by a
 spreadsheet somewhere upstream (`13-Feb` was originally `13-2`); these are
 recovered and flagged.
 
-See the docstring in `pipeline/4_build_database.py` for how the summary
+See the docstring in `pipeline/2_build_database.py` for how the summary
 statistics are computed and what they do and don't claim.
 
 ## Validation
@@ -155,7 +160,7 @@ Cow (BMDB), against typical dairy-cow values:
 
 ## Adding another database
 
-`pipeline/3_parse_concentrations.py` carries a registry of source databases and
+`pipeline/1_parse_concentrations.py` carries a registry of source databases and
 the organism each describes, with NCBI taxonomy identifiers:
 
 | Source | Species                            | Taxon |
@@ -165,18 +170,23 @@ the organism each describes, with NCBI taxonomy identifiers:
 | BMDB   | _Bos taurus_ (Cow)                 | 9913  |
 | ECMDB  | _Escherichia coli_                 | 562   |
 
-Extract the new source to a clean CSV in the same column shape (see
-`pipeline/bmdb/prepare_bmdb.py` for the simplest example), register it in
-`SOURCE_FILES` and `SOURCES` in step 3 and `CSV_PATHS` in step 4, then:
+To add one:
 
-    python pipeline/3_parse_concentrations.py --source <NAME>
+1. Create `pipeline/<source>/` with a script that writes
+   `data/<source>/<source>_concentrations_clean.csv` in the shared column shape
+   (`pipeline/bmdb/prepare_bmdb.py` is the simplest example).
+2. Register it in `SOURCE_FILES` and `SOURCES` in `1_parse_concentrations.py`
+   and in `CSV_PATHS` in `2_build_database.py`.
+3. Add its prepare and parse commands to section 3 of `RUNNING.md`.
 
-Concatenate the parsed CSVs and run steps 4 and 5. Species is recorded on every
-measurement rather than on the source, so MetaboLights and Metabolomics
-Workbench — which carry many organisms per repository — fit the same schema.
+Species is recorded on every measurement rather than on the source, so
+MetaboLights and Metabolomics Workbench — which carry many organisms per
+repository — fit the same schema.
 
 ## Next
 
 - Decide whether BMDB's commercial retail milk (~6,100 of 8,010 milk rows)
   belongs in the cow's normal range — see `pipeline/bmdb/README.md`.
-- MetaboLights, the second repository in Part 2 of the brief.
+- MetaboLights: 8 studies are in (611 values); the team still has to confirm the
+  first-pass control and unit decisions, and 10 more studies need their units checked
+  in the papers. See `pipeline/metabolights/README.md`.
