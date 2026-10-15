@@ -15,8 +15,10 @@ Metabolomics Workbench (MWB) and MetaboLights (MTBLS),** which add human, cow, m
 five further species. Species is carried on every
 measurement, and metabolite identity is structure-based (InChIKey), so a new
 organism needs no schema change. HMDB and BMDB publish concentrations in their XML
-downloads; YMDB and ECMDB do not, so both were scraped from their websites — see
-the README in each `pipeline/<source>/` folder.
+downloads; YMDB and ECMDB do not, so both were scraped from their websites. The two
+study repositories were surveyed for studies reporting real concentrations, and their
+healthy/control groups and units reviewed by hand. See the README in each
+`pipeline/<source>/` folder.
 
 ## What's here
 
@@ -80,15 +82,16 @@ python pipeline/3_build_explorer.py                 # -> explorer/index.html
 ```
 
 Step 2 rebuilds the database from whichever parsed CSVs exist and silently skips
-missing ones, so parse every source first. The full sequence for all five sources,
+missing ones, so parse every source first. The full sequence for all six sources,
 re-downloading each source from scratch, and troubleshooting are in
 [RUNNING.md](RUNNING.md). Each script anchors its own paths, so it runs from any
 working directory.
 
 ## Data files
 
-The clean CSVs the shared steps start from, the Metabolomics Workbench review
-files and the generated site are committed. Downloads and everything the
+The clean CSVs the shared steps start from, the survey and review files of the two
+study repositories (`data/mwb/`, `data/metabolights/`) and the generated site are
+committed. Downloads and everything the
 pipeline regenerates are gitignored, because git cannot diff binaries and
 would re-commit them in full on every rebuild.
 
@@ -103,6 +106,7 @@ would re-commit them in full on every rebuild.
 | `data/ecmdb/ecmdb_concentrations_all.csv`     | **yes**   | scraped; see `pipeline/ecmdb/README.md`       |
 | `data/mwb/mwb_concentrations_clean.csv`       | **yes**   | control groups after review                   |
 | `data/metabolights/mtbls_concentrations_clean.csv` | **yes** | control groups after review (8 studies)  |
+| `data/metabolights/mtbls_control_review.csv`  | **yes**   | control-group and unit decisions per study    |
 | `data/metabolights/isa/`                      | no        | downloaded study files; rebuild with the survey |
 | `data/parsed/*_concentrations_parsed.csv`     | no        | numeric values + parse provenance             |
 | `data/metabolite_atlas.db`                    | no        | the atlas                                     |
@@ -133,16 +137,17 @@ statistics are computed and what they do and don't claim.
 
 ## Validation
 
-Parsed medians in blood, against published reference intervals:
+Human blood medians (HMDB, Metabolomics Workbench and MetaboLights together),
+against published reference intervals:
 
 | Metabolite    | n   | Median (µmol/L) | Expected     |
 | ------------- | --- | --------------- | ------------ |
-| D-Glucose     | 34  | 4,787           | ~4.8 mM ✓    |
-| Creatinine    | 34  | 61.2            | 60–110 µM ✓  |
-| L-Lactic acid | 29  | 1,350           | ~1.35 mM ✓   |
+| D-Glucose     | 40  | 4,750           | ~4.8 mM ✓    |
+| Creatinine    | 45  | 62.5            | 60–110 µM ✓  |
+| L-Lactic acid | 37  | 1,350           | ~1.35 mM ✓   |
 | Urea          | 14  | 3,805           | ~3.8 mM ✓    |
-| Uric acid     | 29  | 280             | 240–360 µM ✓ |
-| L-Glutamine   | 28  | 580             | 500–750 µM ✓ |
+| Uric acid     | 33  | 280             | 240–360 µM ✓ |
+| L-Glutamine   | 46  | 580             | 500–750 µM ✓ |
 
 Cobalamin's median of 0.0004 µmol/L looks wrong but is correct — B12 circulates
 at sub-nanomolar concentrations.
@@ -169,6 +174,11 @@ the organism each describes, with NCBI taxonomy identifiers:
 | YMDB   | _Saccharomyces cerevisiae_ (Yeast) | 4932  |
 | BMDB   | _Bos taurus_ (Cow)                 | 9913  |
 | ECMDB  | _Escherichia coli_                 | 562   |
+| MWB    | per study (Metabolomics Workbench) | from each row |
+| MTBLS  | per study (MetaboLights)           | from each row |
+
+The two study repositories carry many organisms, so their prepare scripts write the
+species on every row and the registry leaves it to them.
 
 To add one:
 
