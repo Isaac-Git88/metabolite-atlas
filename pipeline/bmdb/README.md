@@ -1,6 +1,6 @@
 # BMDB (cow) pipeline
 
-Concentration data for *Bos taurus* from the [Bovine Metabolome Database](https://bmdb.ca).
+Concentration data for _Bos taurus_ from the [Bovine Metabolome Database](https://bmdb.ca).
 
 ## No scraping needed
 
@@ -9,13 +9,13 @@ Unlike YMDB and ECMDB, BMDB's XML download carries concentrations, in the same
 <https://bmdb.ca/downloads> into `data/bmdb/` (the repo root also works). It is
 gitignored (`*.xml`).
 
-| | |
-|---|---|
-| Metabolites in the release | 51,689 (mostly predicted, no concentrations) |
-| Metabolites with a concentration record | 2,840 |
-| Concentration records | 15,192 — 12,865 with a value |
-| After prepare (value present, not diseased, not excluded) | 12,802 rows, 2,099 metabolites |
-| Comparable (µM) | 10,912 rows (85%) |
+|                                                           |                                              |
+| --------------------------------------------------------- | -------------------------------------------- |
+| Metabolites in the release                                | 51,689 (mostly predicted, no concentrations) |
+| Metabolites with a concentration record                   | 2,840                                        |
+| Concentration records                                     | 15,192 — 12,865 with a value                 |
+| After prepare (value present, not diseased, not excluded) | 12,802 rows, 2,099 metabolites               |
+| Comparable (µM)                                           | 10,912 rows (85%)                            |
 
 ## How it differs from HMDB
 

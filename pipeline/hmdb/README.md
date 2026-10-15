@@ -1,6 +1,6 @@
 # HMDB (human) pipeline
 
-Normal concentrations for *Homo sapiens* from the [Human Metabolome Database](https://hmdb.ca),
+Normal concentrations for _Homo sapiens_ from the [Human Metabolome Database](https://hmdb.ca),
 the atlas's first and largest source.
 
 ## You usually don't need to run anything here
@@ -28,12 +28,12 @@ for each value, which the explorer's filters use.
 
 ## Files (`data/hmdb/`)
 
-| File | Committed | |
-|---|---|---|
-| `hmdb_metabolites.xml` | no | the download |
-| `hmdb_normal_concentrations_raw.csv` | no | every concentration record |
-| `hmdb_normal_concentrations_clean.csv` | **yes** | records with a value — the input to the shared steps |
-| `hmdb_inchikey_lookup.csv` | **yes** | InChIKey for each HMDB metabolite, used to match HMDB with the other sources (HMDB's concentration records do not carry one) |
+| File                                   | Committed |                                                                                                                              |
+| -------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `hmdb_metabolites.xml`                 | no        | the download                                                                                                                 |
+| `hmdb_normal_concentrations_raw.csv`   | no        | every concentration record                                                                                                   |
+| `hmdb_normal_concentrations_clean.csv` | **yes**   | records with a value — the input to the shared steps                                                                         |
+| `hmdb_inchikey_lookup.csv`             | **yes**   | InChIKey for each HMDB metabolite, used to match HMDB with the other sources (HMDB's concentration records do not carry one) |
 
 These scripts were `pipeline/1_extract_hmdb.py` and `pipeline/2_remove_empty_concentrations.py`
 before the October 2026 restructure.

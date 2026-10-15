@@ -1,15 +1,15 @@
 # ECMDB (E. coli) pipeline
 
-Concentration data for *Escherichia coli* from the [E. coli Metabolome Database](https://ecmdb.ca).
+Concentration data for _Escherichia coli_ from the [E. coli Metabolome Database](https://ecmdb.ca).
 
 ## Why the concentrations are scraped
 
 Like YMDB, ECMDB's download files carry no measured concentrations:
 
-| Download | Records | Concentrations? |
-|---|---|---|
+| Download     | Records           | Concentrations?                                    |
+| ------------ | ----------------- | -------------------------------------------------- |
 | `ecmdb.json` | 3,760 metabolites | none — identifiers, structures and properties only |
-| `ecmdb.sdf` | the same 3,760 | none |
+| `ecmdb.sdf`  | the same 3,760    | none                                               |
 
 The `.sdf` download is also not an SDF: it is a sequence of 3,760 JSON arrays, each
 holding one record's lines as separate strings. It has to be rebuilt into SDF text
@@ -67,8 +67,8 @@ shared with human, 73 with yeast, and 70 appear in all three species.
 
 ## Data files (`data/ecmdb/`)
 
-| File | Committed | Contents |
-|---|---|---|
-| `ecmdb_concentrations_all.csv` | yes | **the entry point**: one row per measurement, with the full growth conditions |
-| `ecmdb_metabolites.csv`, `ecmdb_sdf_full.csv` | no | extracts of the downloads; rebuildable |
-| `xml/`, `status.jsonl` | no | scrape working files |
+| File                                          | Committed | Contents                                                                      |
+| --------------------------------------------- | --------- | ----------------------------------------------------------------------------- |
+| `ecmdb_concentrations_all.csv`                | yes       | **the entry point**: one row per measurement, with the full growth conditions |
+| `ecmdb_metabolites.csv`, `ecmdb_sdf_full.csv` | no        | extracts of the downloads; rebuildable                                        |
+| `xml/`, `status.jsonl`                        | no        | scrape working files                                                          |

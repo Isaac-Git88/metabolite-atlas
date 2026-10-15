@@ -1,17 +1,17 @@
 # YMDB (yeast) pipeline
 
-Concentration data for *Saccharomyces cerevisiae* from the [Yeast Metabolome Database](https://www.ymdb.ca)
-(Jewison et al. 2012, *Nucleic Acids Research* 40:D815–D820).
+Concentration data for _Saccharomyces cerevisiae_ from the [Yeast Metabolome Database](https://www.ymdb.ca)
+(Jewison et al. 2012, _Nucleic Acids Research_ 40:D815–D820).
 
 ## Why the concentrations are scraped
 
 YMDB's official downloads do not contain the concentration data:
 
-| Download | Records | Concentrations? |
-|---|---|---|
-| `ymdb.json` ("full database") | only 17 of 16,042 metabolites; file is malformed JSON | 2 values |
-| `ymdb.sdf` | 2,025 metabolites | none (structure and properties only) |
-| `protein_sequences.fasta` / `gene_sequences.fasta` | 995 proteins | none |
+| Download                                           | Records                                               | Concentrations?                      |
+| -------------------------------------------------- | ----------------------------------------------------- | ------------------------------------ |
+| `ymdb.json` ("full database")                      | only 17 of 16,042 metabolites; file is malformed JSON | 2 values                             |
+| `ymdb.sdf`                                         | 2,025 metabolites                                     | none (structure and properties only) |
+| `protein_sequences.fasta` / `gene_sequences.fasta` | 995 proteins                                          | none                                 |
 
 Concentrations only appear on each metabolite's page, so `extract_ymdb_concentrations.py` downloads every page's
 XML version (`https://www.ymdb.ca/compounds/YMDBxxxxx.xml`) and extracts them.
@@ -43,17 +43,17 @@ restarted. `extract` alone rebuilds the CSV from the saved pages in about 10 sec
 
 Units are recorded as published, not converted:
 
-| Unit | Rows | Type |
-|---|---|---|
+| Unit           | Rows  | Type                            |
+| -------------- | ----- | ------------------------------- |
 | µM, umol/L, uM | 1,433 | volumetric; all equal to µmol/L |
-| umol/g DW | 28 | per dry weight |
-| nmol/mg | 2 | per mass |
+| umol/g DW      | 28    | per dry weight                  |
+| nmol/mg        | 2     | per mass                        |
 
 ## Data files (`data/ymdb/`)
 
-| File | Committed | Contents |
-|---|---|---|
-| `ymdb_concentrations_all.csv` | yes | **the entry point**: one row per concentration measurement |
-| `ymdb_all_metabolite_links.csv` | yes | page and XML link for every ID YMDB00001–YMDB16500 |
-| `downloads/` | no | the original YMDB download files; get them from https://www.ymdb.ca/downloads |
-| `xml/`, `status.jsonl` | no | scrape working files; rebuild with `extract_ymdb_concentrations.py` |
+| File                            | Committed | Contents                                                                      |
+| ------------------------------- | --------- | ----------------------------------------------------------------------------- |
+| `ymdb_concentrations_all.csv`   | yes       | **the entry point**: one row per concentration measurement                    |
+| `ymdb_all_metabolite_links.csv` | yes       | page and XML link for every ID YMDB00001–YMDB16500                            |
+| `downloads/`                    | no        | the original YMDB download files; get them from https://www.ymdb.ca/downloads |
+| `xml/`, `status.jsonl`          | no        | scrape working files; rebuild with `extract_ymdb_concentrations.py`           |

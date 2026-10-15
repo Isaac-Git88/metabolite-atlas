@@ -7,12 +7,12 @@ the US NIH repository for metabolomics studies. Accessed through its public
 
 ## Why this is harder than HMDB
 
-| | HMDB / YMDB | Metabolomics Workbench |
-|---|---|---|
-| What a record is | one published normal concentration | one sample in one study |
-| Units | always concentrations | mostly peak areas (relative); only targeted studies report concentrations |
-| Healthy/control | implied (normal concentrations) | must be picked out of free-text sample factors |
-| Names | HMDB IDs | free-text; map through RefMet to InChIKey |
+|                  | HMDB / YMDB                        | Metabolomics Workbench                                                    |
+| ---------------- | ---------------------------------- | ------------------------------------------------------------------------- |
+| What a record is | one published normal concentration | one sample in one study                                                   |
+| Units            | always concentrations              | mostly peak areas (relative); only targeted studies report concentrations |
+| Healthy/control  | implied (normal concentrations)    | must be picked out of free-text sample factors                            |
+| Names            | HMDB IDs                           | free-text; map through RefMet to InChIKey                                 |
 
 ## Plan
 
@@ -39,11 +39,11 @@ sample groups, which are needed to find controls.
 
 Outputs in `data/mwb/`:
 
-| File | Committed | Contents |
-|---|---|---|
-| `mwb_analysis_survey.csv` | yes | one row per analysis: species, units, unit class; sample type and groups once downloaded |
-| `mwb_unit_counts.csv` | yes | every distinct UNITS string and how it was classified |
-| `mwtab/`, `status.jsonl`, `*.json` listings | no | downloaded working files |
+| File                                        | Committed | Contents                                                                                 |
+| ------------------------------------------- | --------- | ---------------------------------------------------------------------------------------- |
+| `mwb_analysis_survey.csv`                   | yes       | one row per analysis: species, units, unit class; sample type and groups once downloaded |
+| `mwb_unit_counts.csv`                       | yes       | every distinct UNITS string and how it was classified                                    |
+| `mwtab/`, `status.jsonl`, `*.json` listings | no        | downloaded working files                                                                 |
 
 Unit classes: `volumetric` (usable: µM, ng/mL, mg/dL…), `normalised` (per gram, protein, cell or creatinine),
 `relative` (peak area, intensity, AUC, ratio), `amount` (nmol per vial or sample, no volume),
@@ -51,13 +51,13 @@ Unit classes: `volumetric` (usable: µM, ng/mL, mg/dL…), `normalised` (per gra
 
 ## First results (September 2026)
 
-| | Analyses | Share |
-|---|---|---|
-| Listed | 7,540 | |
-| Relative (peak area, intensity…) | 5,857 | 77.7% |
-| **Volumetric concentration — usable** | **579** (428 studies) | **7.7%** |
-| Normalised (per gram / protein / cell / creatinine) | 520 | 6.9% |
-| Other (amount, m/z, missing, unknown) | 584 | 7.7% |
+|                                                     | Analyses              | Share    |
+| --------------------------------------------------- | --------------------- | -------- |
+| Listed                                              | 7,540                 |          |
+| Relative (peak area, intensity…)                    | 5,857                 | 77.7%    |
+| **Volumetric concentration — usable**               | **579** (428 studies) | **7.7%** |
+| Normalised (per gram / protein / cell / creatinine) | 520                   | 6.9%     |
+| Other (amount, m/z, missing, unknown)               | 584                   | 7.7%     |
 
 Usable analyses by species: human 286, mouse 119, rat 53, cow 15, rhesus macaque 10, others ≤ 8.
 Most usable studies still need their control groups identified before any value enters the atlas.

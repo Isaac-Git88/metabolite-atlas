@@ -7,13 +7,13 @@ control groups only if enough studies report real concentrations.
 
 ## Why it's harder than Metabolomics Workbench
 
-| | Metabolomics Workbench | MetaboLights |
-|---|---|---|
-| Format | mwTab (one file per analysis, JSON available) | ISA-Tab: investigation, sample, assay and MAF files |
-| Units | a `UNITS` field on every analysis | **no units field**; stated (if at all) in the description or protocols |
-| Values | data matrix in the mwTab | MAF (metabolite assignment file): metabolites × samples |
-| Identifiers | free-text names → RefMet | MAF carries ChEBI IDs, and often SMILES / InChI |
-| Healthy/control | sample factors | `Factor Value[...]` columns of the sample sheet |
+|                 | Metabolomics Workbench                        | MetaboLights                                                           |
+| --------------- | --------------------------------------------- | ---------------------------------------------------------------------- |
+| Format          | mwTab (one file per analysis, JSON available) | ISA-Tab: investigation, sample, assay and MAF files                    |
+| Units           | a `UNITS` field on every analysis             | **no units field**; stated (if at all) in the description or protocols |
+| Values          | data matrix in the mwTab                      | MAF (metabolite assignment file): metabolites × samples                |
+| Identifiers     | free-text names → RefMet                      | MAF carries ChEBI IDs, and often SMILES / InChI                        |
+| Healthy/control | sample factors                                | `Factor Value[...]` columns of the sample sheet                        |
 
 The missing units field is the main problem. Concentration studies can only be found by
 reading each study's text, so step 1 is a keyword screen that a person then reviews.
@@ -38,7 +38,7 @@ with `--maf`, and only for studies the screen marks `likely` or `possible`.
 **The concentration screen** has two stages.
 
 1. **Text** (`text_screen`), from the title, description, protocols and design types:
-   - `likely`: a concentration unit stated as a *result*, next to wording such as "expressed in",
+   - `likely`: a concentration unit stated as a _result_, next to wording such as "expressed in",
      "calculated in", "presented as" or "absolute" (e.g. "concentrations … were calculated in mM per litre");
    - `possible`: a targeted design with quantification wording (calibration curve, absolute
      quantification), or a unit mention in a study that does not call itself untargeted;
@@ -66,11 +66,11 @@ limitation: a quantitative study that never states its unit in the text (e.g. MT
 
 Outputs in `data/metabolights/`:
 
-| File | Contents |
-|---|---|
-| `mtbls_study_survey.csv` | one row per study: organism, organism part, design, both screen stages and the final verdict, units found, sample groups, MAF row counts and median value |
-| `mtbls_organisms.csv` | studies per organism and screen result |
-| `isa/`, `status.jsonl`, `studies.json` | downloaded working files (gitignored) |
+| File                                   | Contents                                                                                                                                                  |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `mtbls_study_survey.csv`               | one row per study: organism, organism part, design, both screen stages and the final verdict, units found, sample groups, MAF row counts and median value |
+| `mtbls_organisms.csv`                  | studies per organism and screen result                                                                                                                    |
+| `isa/`, `status.jsonl`, `studies.json` | downloaded working files (gitignored)                                                                                                                     |
 
 ## Status
 
@@ -78,16 +78,16 @@ Outputs in `data/metabolights/`:
 MTBLS15156 and MTBLS15262 fail to download on MetaboLights' side), and the MAFs of the 370
 studies the text screen flagged were fetched.
 
-| Stage | Studies |
-|---|---|
-| Public studies surveyed | 3,507 |
-| Text screen: likely or possible | 370 |
-| ...MAF holds peak areas (median > 10,000), moved to `unlikely` | 62 |
-| ...MAF holds no numbers at all (`no_values`: values only in the paper) | 172 |
-| **Final `likely` + `possible`** | **136** (23 likely, 113 possible) |
-| ...from a mammal | 84 |
-| ...in a biofluid (blood, plasma, serum, urine, feces, saliva, BALF, milk…) | **58** |
-| ...with a sample group named like a control | **24** |
+| Stage                                                                      | Studies                           |
+| -------------------------------------------------------------------------- | --------------------------------- |
+| Public studies surveyed                                                    | 3,507                             |
+| Text screen: likely or possible                                            | 370                               |
+| ...MAF holds peak areas (median > 10,000), moved to `unlikely`             | 62                                |
+| ...MAF holds no numbers at all (`no_values`: values only in the paper)     | 172                               |
+| **Final `likely` + `possible`**                                            | **136** (23 likely, 113 possible) |
+| ...from a mammal                                                           | 84                                |
+| ...in a biofluid (blood, plasma, serum, urine, feces, saliva, BALF, milk…) | **58**                            |
+| ...with a sample group named like a control                                | **24**                            |
 
 So MetaboLights is a much smaller source than its size suggests: about 4% of studies hold
 values that could be concentrations, and under 2% are mammalian biofluid studies. `could_be_concentration`

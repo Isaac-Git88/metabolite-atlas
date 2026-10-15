@@ -22,23 +22,23 @@ healthy/control groups and units reviewed by hand. See the README in each
 
 ## What's here
 
-|            |                                                      |
-| ---------- | ---------------------------------------------------- |
-| **9,865**   | reference ranges (species × metabolite × biospecimen) |
-| **5,355**   | metabolites with a range                             |
-| **10 / 1,419** | species, and structures measured in more than one |
-| **3,493**   | ranges supported by 3+ measurements                  |
-| **40,145**  | measurements in the database                         |
-| **1,801**   | source citations                                     |
+|                |                                                       |
+| -------------- | ----------------------------------------------------- |
+| **9,865**      | reference ranges (species × metabolite × biospecimen) |
+| **5,355**      | metabolites with a range                              |
+| **10 / 1,419** | species, and structures measured in more than one     |
+| **3,493**      | ranges supported by 3+ measurements                   |
+| **40,145**     | measurements in the database                          |
+| **1,801**      | source citations                                      |
 
-| Species | Ranges | Metabolites | Sources |
-| ------- | ------ | ----------- | ------- |
-| Human   | 4,518  | 3,087       | HMDB, MWB, MTBLS |
-| Cow     | 2,775  | 2,079       | BMDB, MWB |
-| _E. coli_ | 891  | 891         | ECMDB |
-| Yeast   | 866    | 866         | YMDB |
-| Mouse   | 340    | 325         | MWB, MTBLS |
-| Sika deer, rat, rainbow trout, dog, rhesus macaque | 475 | — | MWB |
+| Species                                            | Ranges | Metabolites | Sources          |
+| -------------------------------------------------- | ------ | ----------- | ---------------- |
+| Human                                              | 4,518  | 3,087       | HMDB, MWB, MTBLS |
+| Cow                                                | 2,775  | 2,079       | BMDB, MWB        |
+| _E. coli_                                          | 891    | 891         | ECMDB            |
+| Yeast                                              | 866    | 866         | YMDB             |
+| Mouse                                              | 340    | 325         | MWB, MTBLS       |
+| Sika deer, rat, rainbow trout, dog, rhesus macaque | 475    | —           | MWB              |
 
 757 of the _E. coli_ metabolites are not in the human data at all. Cow ranges
 cover milk, rumen fluid, blood, adipose tissue, liver, testis and muscle.
@@ -46,7 +46,7 @@ cover milk, rumen fluid, blood, adipose tissue, liver, testis and muscle.
 ## Layout
 
 ```
-RUNNING.md                step-by-step instructions
+RUNNING.md                how to run, update each source, and publish the site
 requirements.txt          Python packages
 
 pipeline/
@@ -95,22 +95,22 @@ committed. Downloads and everything the
 pipeline regenerates are gitignored, because git cannot diff binaries and
 would re-commit them in full on every rebuild.
 
-| File                                          | Committed | Notes                                         |
-| --------------------------------------------- | --------- | --------------------------------------------- |
-| `data/hmdb/hmdb_metabolites.xml`              | no        | ~6.5 GB, from <https://hmdb.ca/downloads>     |
-| `data/hmdb/hmdb_normal_concentrations_raw.csv`| no        | 51,246 rows                                   |
-| `data/hmdb/hmdb_normal_concentrations_clean.csv` | **yes** | 20,974 rows — HMDB's entry point             |
-| `data/hmdb/hmdb_inchikey_lookup.csv`          | **yes**   | InChIKeys for HMDB metabolites                |
-| `data/bmdb/bmdb_metabolites.xml`              | no        | ~450 MB, from <https://bmdb.ca/downloads>     |
-| `data/ymdb/ymdb_concentrations_all.csv`       | **yes**   | scraped; see `pipeline/ymdb/README.md`        |
-| `data/ecmdb/ecmdb_concentrations_all.csv`     | **yes**   | scraped; see `pipeline/ecmdb/README.md`       |
-| `data/mwb/mwb_concentrations_clean.csv`       | **yes**   | control groups after review                   |
-| `data/metabolights/mtbls_concentrations_clean.csv` | **yes** | control groups after review (8 studies)  |
-| `data/metabolights/mtbls_control_review.csv`  | **yes**   | control-group and unit decisions per study    |
-| `data/metabolights/isa/`                      | no        | downloaded study files; rebuild with the survey |
-| `data/parsed/*_concentrations_parsed.csv`     | no        | numeric values + parse provenance             |
-| `data/metabolite_atlas.db`                    | no        | the atlas                                     |
-| `explorer/index.html`                         | **yes**   | self-contained site, served by GitHub Pages   |
+| File                                               | Committed | Notes                                           |
+| -------------------------------------------------- | --------- | ----------------------------------------------- |
+| `data/hmdb/hmdb_metabolites.xml`                   | no        | ~6.5 GB, from <https://hmdb.ca/downloads>       |
+| `data/hmdb/hmdb_normal_concentrations_raw.csv`     | no        | 51,246 rows                                     |
+| `data/hmdb/hmdb_normal_concentrations_clean.csv`   | **yes**   | 20,974 rows — HMDB's entry point                |
+| `data/hmdb/hmdb_inchikey_lookup.csv`               | **yes**   | InChIKeys for HMDB metabolites                  |
+| `data/bmdb/bmdb_metabolites.xml`                   | no        | ~450 MB, from <https://bovinedb.ca/downloads>   |
+| `data/ymdb/ymdb_concentrations_all.csv`            | **yes**   | scraped; see `pipeline/ymdb/README.md`          |
+| `data/ecmdb/ecmdb_concentrations_all.csv`          | **yes**   | scraped; see `pipeline/ecmdb/README.md`         |
+| `data/mwb/mwb_concentrations_clean.csv`            | **yes**   | control groups after review                     |
+| `data/metabolights/mtbls_concentrations_clean.csv` | **yes**   | control groups after review (8 studies)         |
+| `data/metabolights/mtbls_control_review.csv`       | **yes**   | control-group and unit decisions per study      |
+| `data/metabolights/isa/`                           | no        | downloaded study files; rebuild with the survey |
+| `data/parsed/*_concentrations_parsed.csv`          | no        | numeric values + parse provenance               |
+| `data/metabolite_atlas.db`                         | no        | the atlas                                       |
+| `explorer/index.html`                              | **yes**   | self-contained site, served by GitHub Pages     |
 
 ## Two decisions worth knowing
 
@@ -154,26 +154,26 @@ at sub-nanomolar concentrations.
 
 Cow (BMDB), against typical dairy-cow values:
 
-| Metabolite             | Biospecimen | n  | Median (µmol/L) | Expected                    |
-| ---------------------- | ----------- | -- | --------------- | --------------------------- |
-| D-Glucose              | Blood       | 13 | 3,808           | 2.5–4.2 mM ✓                |
-| 3-Hydroxybutyric acid  | Blood       | 6  | 738             | < 1.2 mM (ketosis cut-off) ✓ |
-| Acetic acid            | Rumen       | 16 | 56,325          | 50–70 mM ✓                  |
-| Propionic acid         | Rumen       | 17 | 16,860          | 15–30 mM ✓                  |
-| Butyric acid           | Rumen       | 16 | 9,383           | 8–15 mM ✓                   |
-| Citric acid            | Milk        | 19 | 6,440           | 6–10 mM ✓                   |
+| Metabolite            | Biospecimen | n   | Median (µmol/L) | Expected                     |
+| --------------------- | ----------- | --- | --------------- | ---------------------------- |
+| D-Glucose             | Blood       | 13  | 3,808           | 2.5–4.2 mM ✓                 |
+| 3-Hydroxybutyric acid | Blood       | 6   | 738             | < 1.2 mM (ketosis cut-off) ✓ |
+| Acetic acid           | Rumen       | 16  | 56,325          | 50–70 mM ✓                   |
+| Propionic acid        | Rumen       | 17  | 16,860          | 15–30 mM ✓                   |
+| Butyric acid          | Rumen       | 16  | 9,383           | 8–15 mM ✓                    |
+| Citric acid           | Milk        | 19  | 6,440           | 6–10 mM ✓                    |
 
 ## Adding another database
 
 `pipeline/1_parse_concentrations.py` carries a registry of source databases and
 the organism each describes, with NCBI taxonomy identifiers:
 
-| Source | Species                            | Taxon |
-| ------ | ---------------------------------- | ----- |
-| HMDB   | _Homo sapiens_ (Human)             | 9606  |
-| YMDB   | _Saccharomyces cerevisiae_ (Yeast) | 4932  |
-| BMDB   | _Bos taurus_ (Cow)                 | 9913  |
-| ECMDB  | _Escherichia coli_                 | 562   |
+| Source | Species                            | Taxon         |
+| ------ | ---------------------------------- | ------------- |
+| HMDB   | _Homo sapiens_ (Human)             | 9606          |
+| YMDB   | _Saccharomyces cerevisiae_ (Yeast) | 4932          |
+| BMDB   | _Bos taurus_ (Cow)                 | 9913          |
+| ECMDB  | _Escherichia coli_                 | 562           |
 | MWB    | per study (Metabolomics Workbench) | from each row |
 | MTBLS  | per study (MetaboLights)           | from each row |
 
@@ -187,7 +187,7 @@ To add one:
    (`pipeline/bmdb/prepare_bmdb.py` is the simplest example).
 2. Register it in `SOURCE_FILES` and `SOURCES` in `1_parse_concentrations.py`
    and in `CSV_PATHS` in `2_build_database.py`.
-3. Add its prepare and parse commands to section 3 of `RUNNING.md`.
+3. Add an update subsection to section 4 of `RUNNING.md`, and its prepare and parse commands to sections 5 and 6.
 
 Species is recorded on every measurement rather than on the source, so
 MetaboLights and Metabolomics Workbench — which carry many organisms per
